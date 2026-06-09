@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <circle cx="60" cy="60" r="56" stroke="#2a4035" stroke-width="2"/>
+  <circle cx="60" cy="60" r="51" stroke="#2a4035" stroke-width="0.8"/>
+  <text x="60" y="74" font-family="'游明朝', YuMincho, 'Hiragino Mincho ProN', Georgia, serif"
+    font-size="44" fill="#2a4035" text-anchor="middle" font-weight="400">金</text>
+</svg>
