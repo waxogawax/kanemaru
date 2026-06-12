@@ -1,0 +1,186 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const allTags = ['すべて', 'お知らせ', 'プロジェクト', 'イベント', 'メディア', 'Instagram'];
+
+const newsItems = [
+  {
+    date: '2026-06-01',
+    dateLabel: '2026.06.01',
+    category: 'プロジェクト',
+    title: '能登アップサイクルプラットフォーム事務局を開設しました（7団体）',
+    href: '/news/2026-06-noto-upcycle',
+    external: false,
+  },
+  {
+    date: '2025-09-05',
+    dateLabel: '2025.09.05',
+    category: 'Instagram',
+    title: 'あばれ祭の季節。宇出津の夏を、今年も迎えました。',
+    href: 'https://www.instagram.com/kanemaru.ltd/',
+    external: true,
+  },
+  {
+    date: '2025-07-01',
+    dateLabel: '2025.07.01',
+    category: 'お知らせ',
+    title: '金丸商店株式会社として事業を継承しました',
+    href: '/news/2025-07-founding',
+    external: false,
+  },
+];
+---
+
+<Layout
+  title="お知らせ | 金丸商店株式会社"
+  description="金丸商店からのお知らせ、活動報告、Instagram の投稿をまとめています。"
+>
+
+  <section class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__label">News</span>
+      <h1 class="page-hero__title">お知らせ</h1>
+    </div>
+  </section>
+
+  <section class="section news-index">
+    <div class="container">
+      <ul class="news-list">
+        {newsItems.map(item => (
+          <li class="news-item fade-in">
+            <a
+              href={item.href}
+              class="news-item__link"
+              {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              <time class="news-item__date" datetime={item.date}>{item.dateLabel}</time>
+              <span class="news-item__category">{item.category}</span>
+              <span class="news-item__title">{item.title}</span>
+              {item.external && (
+                <svg class="news-item__ext" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div class="news-index__instagram">
+        <p class="news-index__instagram-text">
+          日々の活動はInstagramで発信しています。
+        </p>
+        <a href="https://www.instagram.com/kanemaru.ltd/" class="btn" target="_blank" rel="noopener noreferrer">
+          Instagram を見る
+        </a>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .news-list {
+    border-top: 1px solid var(--line);
+    margin-bottom: 80px;
+  }
+
+  .news-item__link {
+    display: grid;
+    grid-template-columns: 96px 96px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--line);
+    transition: padding var(--dur) var(--ease), background var(--dur) var(--ease), margin var(--dur) var(--ease);
+  }
+
+  .news-item__link:hover {
+    background: color-mix(in srgb, var(--shu) 4%, var(--paper));
+    padding-left: 16px;
+    padding-right: 16px;
+    margin: 0 -16px;
+  }
+
+  .news-item__date {
+    font-size: 12px;
+    color: var(--gray);
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+    font-feature-settings: "tnum";
+  }
+
+  .news-item__category {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--gray);
+    border: 1px solid var(--line);
+    padding: 3px 10px;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .news-item__title {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+
+  .news-item__ext {
+    color: var(--gray);
+    flex-shrink: 0;
+  }
+
+  .news-index__instagram {
+    text-align: center;
+    padding: 64px 0;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .news-index__instagram-text {
+    font-size: 15px;
+    line-height: 2;
+    color: var(--gray);
+  }
+
+  @media (max-width: 560px) {
+    .news-item__link {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+    }
+
+    .news-item__date     { order: 1; }
+    .news-item__category { order: 2; justify-self: end; }
+    .news-item__title    { order: 3; grid-column: 1 / -1; margin-top: 4px; }
+    .news-item__ext      { display: none; }
+
+    .news-item__link:hover {
+      padding-left: 0;
+      padding-right: 0;
+      margin: 0;
+    }
+  }
+</style>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>

@@ -1,0 +1,450 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const groups = [
+  {
+    id: 'de',
+    particle: 'で',
+    label: '日々を営む',
+    desc: '食べる場所、泊まる場所、体を動かす場所。能登の日常を支える事業です。',
+    businesses: [
+      {
+        verb: '食べる・商う',
+        name: 'かねまる',
+        genre: '飲食・小売',
+        body: '宇出津を拠点とした飲食と小売の事業。土地の食材と人の縁を結び、日々の暮らしの味方でいる。',
+        newsTag: 'かねまる',
+      },
+      {
+        verb: '獲る・届ける',
+        name: '漁心庵',
+        genre: '漁業・水産',
+        body: '能登の海で獲れた魚を、丁寧に扱う。漁師と食卓をつなぐ、水産の仕事。',
+        newsTag: '漁心庵',
+      },
+      {
+        verb: '泊まる・寛ぐ',
+        name: '能登屋',
+        genre: '温泉旅館・宿泊',
+        body: '能登の温泉旅館。旅人が能登の時間を味わえる宿として、土地の魅力を伝える。',
+        newsTag: '能登屋',
+      },
+      {
+        verb: '動く・整える',
+        name: 'NASW',
+        genre: 'スポーツクラブ',
+        body: '地域に根ざしたスポーツクラブ。体を動かすことが、暮らしの豊かさにつながる。',
+        newsTag: 'NASW',
+      },
+    ],
+  },
+  {
+    id: 'wo',
+    particle: 'を',
+    label: '土地を継ぐ',
+    desc: '建てる、壊す、蘇らせる。能登の土地と記憶を、次の世代へ渡す事業です。',
+    businesses: [
+      {
+        verb: '建てる・解く・救う',
+        name: '工務店あおばち組',
+        genre: '建設・解体・古材レスキュー',
+        body: '能登の建物を建て、解体し、古材を救い出す。震災後の能登において、土地を継ぐことの最前線にいる。',
+        newsTag: 'あおばち組',
+      },
+      {
+        verb: '記録する・伝える',
+        name: 'nowtocura のとくら',
+        genre: '文化・キュレーション',
+        body: '能登の文化と暮らしを記録し、伝える。物語が続くことで、土地は続いていく。',
+        newsTag: 'のとくら',
+        externalHref: '#',
+      },
+    ],
+  },
+  {
+    id: 'ni',
+    particle: 'に',
+    label: '人を迎える',
+    desc: '外から来る人が、能登に居場所を見つけられるよう。関係人口を育てる事業です。',
+    businesses: [
+      {
+        verb: '迎える・つながる',
+        name: "HERO's Labo",
+        genre: '関係人口創出・ふるさと住民登録',
+        body: '能登に関わる人を増やし、ふるさと住民として迎える。人が来ることが、土地の力になる。',
+        newsTag: "HERO's Labo",
+        externalHref: '#',
+      },
+    ],
+  },
+];
+
+const projects = [
+  {
+    name: '能登アップサイクルプラットフォーム',
+    desc: '震災で生じた解体木材・古材を再生する7団体連携のプラットフォーム。2026年6月、金丸商店が事務局として開設。',
+    href: '#',
+  },
+  {
+    name: 'のと古材レスキュー',
+    desc: '工務店あおばち組が担う、解体現場からの古材救出プロジェクト。能登の木の物語を次の場所へ。',
+    href: '#',
+  },
+];
+---
+
+<Layout
+  title="事業 | 金丸商店株式会社"
+  description="で・を・に、7つの事業で能登の暮らしを支える金丸商店の事業紹介。"
+>
+
+  <section class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__label">Business</span>
+      <h1 class="page-hero__title">事業</h1>
+      <p class="page-hero__desc">
+        「で・を・に」という三つの助詞が、金丸商店の事業構造そのものです。
+      </p>
+    </div>
+  </section>
+
+  {groups.map(group => (
+    <section class={`group-section section group-section--${group.id}`} id={group.id}>
+      <div class="container">
+        <div class="group-header">
+          <div class="group-header__particle-wrap">
+            <span class={`group-header__particle group-header__particle--${group.id}`}>{group.particle}</span>
+          </div>
+          <div class="group-header__text">
+            <span class={`group-tag group-tag--${group.id}`}>{group.particle}｜{group.label}</span>
+            <h2 class="group-header__title">{group.label}</h2>
+            <p class="group-header__desc">{group.desc}</p>
+          </div>
+        </div>
+
+        <div class="biz-grid">
+          {group.businesses.map(biz => (
+            <article class="biz-card fade-in">
+              <div class="biz-card__img-wrap">
+                <div class={`biz-card__img biz-card__img--${group.id}`} aria-hidden="true">
+                  <span>{biz.name}</span>
+                </div>
+              </div>
+              <div class="biz-card__body">
+                <span class="biz-card__verb">{biz.verb}</span>
+                <h3 class="biz-card__name">{biz.name}</h3>
+                <span class="biz-card__genre">{biz.genre}</span>
+                <p class="biz-card__text">{biz.body}</p>
+                <div class="biz-card__links">
+                  <a href={`/news?tag=${encodeURIComponent(biz.newsTag)}`} class="link-arrow biz-card__news-link">
+                    この事業のお知らせ
+                  </a>
+                  {biz.externalHref && (
+                    <a href={biz.externalHref} class="biz-card__ext-link" target="_blank" rel="noopener noreferrer">
+                      公式サイト
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <!-- =====================
+       Projects
+       ===================== -->
+  <section class="section projects-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Projects</span>
+        <h2 class="section-title">プロジェクト</h2>
+      </div>
+      <p class="projects-section__lead">
+        特定の事業にとどまらず、複数の組織と連携して取り組んでいる活動です。
+      </p>
+      <div class="projects-grid">
+        {projects.map(p => (
+          <a href={p.href} class="project-card" target="_blank" rel="noopener noreferrer">
+            <h3 class="project-card__name">{p.name}</h3>
+            <p class="project-card__desc">{p.desc}</p>
+            <span class="project-card__link">詳しく見る →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .page-hero__desc {
+    font-size: 15px;
+    line-height: 2;
+    color: var(--gray);
+    margin-top: 20px;
+    max-width: 480px;
+  }
+
+  /* ─── Group section ─── */
+
+  .group-section {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .group-section--de { background: color-mix(in srgb, var(--de) 4%, var(--paper)); }
+  .group-section--wo { background: color-mix(in srgb, var(--wo) 4%, var(--paper)); }
+  .group-section--ni { background: color-mix(in srgb, var(--ni) 4%, var(--paper)); }
+
+  .group-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+    margin-bottom: 64px;
+  }
+
+  .group-header__particle-wrap {
+    flex-shrink: 0;
+    width: 80px;
+  }
+
+  .group-header__particle {
+    font-family: var(--font-serif);
+    font-size: 72px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .group-header__particle--de { color: var(--de); }
+  .group-header__particle--wo { color: var(--wo); }
+  .group-header__particle--ni { color: var(--ni); }
+
+  .group-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    padding: 4px 12px;
+    border: 1px solid;
+    margin-bottom: 16px;
+  }
+
+  .group-tag--de { color: var(--de); border-color: var(--de); }
+  .group-tag--wo { color: var(--wo); border-color: var(--wo); }
+  .group-tag--ni { color: var(--ni); border-color: var(--ni); }
+
+  .group-header__title {
+    font-family: var(--font-serif);
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .group-header__desc {
+    font-size: 15px;
+    line-height: 2;
+    color: var(--gray);
+    max-width: 520px;
+  }
+
+  /* ─── Business card grid ─── */
+
+  .biz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 32px;
+  }
+
+  .biz-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .biz-card__img {
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: rgba(250, 248, 244, 0.6);
+  }
+
+  .biz-card__img--de { background: color-mix(in srgb, var(--de) 30%, var(--ink)); }
+  .biz-card__img--wo { background: color-mix(in srgb, var(--wo) 30%, var(--ink)); }
+  .biz-card__img--ni { background: color-mix(in srgb, var(--ni) 30%, var(--ink)); }
+
+  .biz-card__body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .biz-card__verb {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+  }
+
+  .biz-card__name {
+    font-family: var(--font-serif);
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .biz-card__genre {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--gray);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 4px;
+  }
+
+  .biz-card__text {
+    font-size: 14px;
+    line-height: 2;
+    color: var(--gray);
+    flex: 1;
+  }
+
+  .biz-card__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    margin-top: 16px;
+  }
+
+  .biz-card__news-link {
+    font-size: 12px;
+  }
+
+  .biz-card__ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    transition: color var(--dur) var(--ease);
+  }
+
+  .biz-card__ext-link:hover {
+    color: var(--shu);
+  }
+
+  /* ─── Projects ─── */
+
+  .projects-section {
+    background: var(--ink);
+  }
+
+  .projects-section .section-label {
+    color: rgba(250, 248, 244, 0.4);
+  }
+
+  .projects-section .section-title {
+    color: var(--paper);
+  }
+
+  .projects-section__lead {
+    font-size: 14px;
+    line-height: 2;
+    color: rgba(250, 248, 244, 0.5);
+    margin-bottom: 48px;
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .project-card {
+    padding: 32px;
+    border: 1px solid rgba(250, 248, 244, 0.14);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+  }
+
+  .project-card:hover {
+    border-color: rgba(250, 248, 244, 0.3);
+    background: rgba(250, 248, 244, 0.04);
+  }
+
+  .project-card__name {
+    font-family: var(--font-serif);
+    font-size: clamp(16px, 1.8vw, 20px);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--paper);
+    line-height: 1.5;
+  }
+
+  .project-card__desc {
+    font-size: 14px;
+    line-height: 1.9;
+    color: rgba(250, 248, 244, 0.55);
+    flex: 1;
+  }
+
+  .project-card__link {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: rgba(250, 248, 244, 0.45);
+    margin-top: auto;
+  }
+
+  /* ─── Responsive ─── */
+
+  @media (max-width: 768px) {
+    .group-header {
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .group-header__particle {
+      font-size: 56px;
+    }
+
+    .biz-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.08 }
+  );
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>

@@ -1,0 +1,77 @@
+---
+const navItems = [
+  { href: '/about',    label: 'あり方' },
+  { href: '/business', label: '事業' },
+  { href: '/news',     label: 'お知らせ' },
+  { href: '/members',  label: '人' },
+  { href: '/store',    label: '店' },
+  { href: '/company',  label: '会社概要' },
+];
+
+const { pathname } = Astro.url;
+
+function isCurrent(href: string) {
+  return pathname === href || (href !== '/' && pathname.startsWith(href + '/'));
+}
+---
+
+<header class="site-header" id="top">
+  <div class="site-header__inner">
+    <a href="/" class="site-logo" aria-label="金丸商店 ホームへ">
+      <img src="/images/logo.svg" alt="金丸商店" width="120" height="36" />
+    </a>
+
+    <nav class="site-nav" aria-label="グローバルナビゲーション">
+      {navItems.map(item => (
+        <a href={item.href} class={isCurrent(item.href) ? 'is-current' : ''}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <button
+      class="nav-toggle"
+      id="navToggle"
+      aria-label="メニューを開く"
+      aria-expanded="false"
+      aria-controls="navOverlay"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<div class="nav-overlay" id="navOverlay" aria-hidden="true" role="navigation" aria-label="モバイルナビゲーション">
+  {navItems.map(item => (
+    <a href={item.href}>{item.label}</a>
+  ))}
+</div>
+
+<script>
+  const toggle = document.getElementById('navToggle') as HTMLButtonElement | null;
+  const overlay = document.getElementById('navOverlay') as HTMLElement | null;
+
+  function openNav() {
+    toggle?.classList.add('is-open');
+    overlay?.classList.add('is-open');
+    toggle?.setAttribute('aria-expanded', 'true');
+    overlay?.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeNav() {
+    toggle?.classList.remove('is-open');
+    overlay?.classList.remove('is-open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    overlay?.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  toggle?.addEventListener('click', () => {
+    toggle.getAttribute('aria-expanded') === 'true' ? closeNav() : openNav();
+  });
+
+  overlay?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
+</script>

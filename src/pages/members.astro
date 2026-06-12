@@ -1,0 +1,199 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const members = [
+  {
+    name: '小川 勝則',
+    nameEn: 'Katsunori Ogawa',
+    role: '共同代表',
+    bio: '金丸商店の孫。能登町宇出津に生まれ育ち、この土地の暮らしを誰より知る一人。2025年7月、ひ孫の楽生とともに金丸商店株式会社を設立し、共同代表として事業を継承した。日々の事業運営から地域との関係づくりまで、暮らしの近くに立つ。',
+  },
+  {
+    name: '小川 楽生',
+    nameEn: 'Rakuki Ogawa',
+    role: '共同代表',
+    bio: '金丸商店のひ孫。能登の外にも視野を広げながら、この土地で続けることを選んだ。2025年7月、祖父の勝則とともに金丸商店株式会社を設立し、共同代表として事業を継承。能登アップサイクルプラットフォームの設立など、新たな取り組みの推進も担う。',
+  },
+];
+---
+
+<Layout
+  title="人 | 金丸商店株式会社"
+  description="金丸商店を共に営む人々。共同代表 小川勝則・小川楽生のプロフィール。"
+>
+
+  <section class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__label">Members</span>
+      <h1 class="page-hero__title">人</h1>
+      <p class="page-hero__desc">孫と、ひ孫と。大正から続く問いを、二人で引き受けています。</p>
+    </div>
+  </section>
+
+  <section class="section members-section">
+    <div class="container">
+      <div class="members-grid">
+        {members.map(m => (
+          <article class="member-card fade-in">
+            <div class="member-card__photo member-card__photo--placeholder" aria-label={`${m.name}の写真`}></div>
+            <div class="member-card__body">
+              <div class="member-card__meta">
+                <span class="member-card__role">{m.role}</span>
+                <span class="member-card__name-en">{m.nameEn}</span>
+              </div>
+              <h2 class="member-card__name">{m.name}</h2>
+              <p class="member-card__bio">{m.bio}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section members-cta">
+    <div class="container">
+      <div class="members-cta__inner">
+        <h2 class="members-cta__title">仲間を募っています</h2>
+        <p class="members-cta__body">
+          能登で、一緒に暮らしを事業にしていく人を探しています。<br />
+          まずは気軽に話しかけてください。
+        </p>
+        <a href="mailto:info@kanemaru.ltd" class="btn">メールで話しかける</a>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .page-hero__desc {
+    font-size: 15px;
+    line-height: 2;
+    color: var(--gray);
+    margin-top: 20px;
+  }
+
+  .members-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+  }
+
+  .member-card {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 64px;
+    align-items: start;
+    padding-bottom: 80px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .member-card:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .member-card__photo {
+    aspect-ratio: 3 / 4;
+    background: var(--line);
+    width: 100%;
+  }
+
+  .member-card__body {
+    padding-top: 8px;
+  }
+
+  .member-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .member-card__role {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    border: 1px solid var(--line);
+    padding: 3px 12px;
+  }
+
+  .member-card__name-en {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .member-card__name {
+    font-family: var(--font-serif);
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    margin-bottom: 32px;
+    line-height: 1.4;
+  }
+
+  .member-card__bio {
+    font-size: 15px;
+    line-height: 2.2;
+    color: var(--gray);
+    max-width: 560px;
+  }
+
+  .members-cta {
+    background: var(--ink);
+  }
+
+  .members-cta__inner {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .members-cta__title {
+    font-family: var(--font-serif);
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--paper);
+    line-height: 1.5;
+  }
+
+  .members-cta__body {
+    font-size: 15px;
+    line-height: 2;
+    color: rgba(250, 248, 244, 0.55);
+  }
+
+  @media (max-width: 900px) {
+    .member-card {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .member-card__photo {
+      max-width: 280px;
+      aspect-ratio: 1 / 1;
+    }
+  }
+</style>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.08 }
+  );
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>

@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 
 interface Props {
   title?: string;
@@ -7,8 +9,8 @@ interface Props {
 }
 
 const {
-  title = '金丸商店 | 能登・宇出津',
-  description = '金丸商店は、石川県能登町宇出津に根ざした商店です。土地に根ざした品々と、人の手の温度を大切にしています。',
+  title = '金丸商店株式会社 | 能登・宇出津',
+  description = '大正7年（1918年頃）、能登町宇出津の氷水屋から始まった金丸商店。共同代表 小川勝則・小川楽生が2025年7月に株式会社として継承し、「共暮らし」をテーマに7つの事業を営んでいます。',
 } = Astro.props;
 ---
 <!doctype html>
@@ -25,8 +27,13 @@ const {
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <Header />
     <slot />
+    <Footer />
   </body>
 </html>

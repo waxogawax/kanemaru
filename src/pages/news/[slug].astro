@@ -1,0 +1,199 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export function getStaticPaths() {
+  const posts = [
+    {
+      slug: '2026-06-noto-upcycle',
+      title: '能登アップサイクルプラットフォーム事務局を開設しました',
+      date: '2026-06-01',
+      dateLabel: '2026年6月1日',
+      category: 'プロジェクト',
+      lead: '能登半島地震により発生した解体木材・古材を再生する「能登アップサイクルプラットフォーム」の事務局を、7団体と共に開設しました。',
+      body: `
+        <p>
+          2026年6月、金丸商店株式会社は7団体と共に「能登アップサイクルプラットフォーム」の事務局を開設しました。
+        </p>
+        <p>
+          能登半島地震（2024年1月）により、能登地域では多くの建物が被害を受け、解体工事が進んでいます。
+          解体によって生まれる木材の多くは廃棄されてきましたが、能登の古民家に使われた柱や梁には、
+          長い年月をかけて育まれた強度と、この土地の記憶が宿っています。
+        </p>
+        <p>
+          「能登アップサイクルプラットフォーム」は、これらの古材を救い出し、
+          新たな価値として再生することを目的とした連携体制です。
+          金丸商店の工務店あおばち組が担う解体・古材レスキューと連携しながら、
+          能登の木の物語を次の場所へと続けていきます。
+        </p>
+        <p>
+          詳細については、今後順次お知らせしてまいります。
+        </p>
+      `,
+    },
+    {
+      slug: '2025-07-founding',
+      title: '金丸商店株式会社として事業を継承しました',
+      date: '2025-07-01',
+      dateLabel: '2025年7月1日',
+      category: 'お知らせ',
+      lead: '大正7年（1918年頃）より続く金丸商店を、孫・小川勝則とひ孫・小川楽生が株式会社として継承しました。',
+      body: `
+        <p>
+          2025年7月、金丸商店株式会社を設立しました。
+        </p>
+        <p>
+          大正7年（1918年頃）、石川県能登町宇出津にて祖父母が氷水屋として創業した金丸商店を、
+          孫・小川勝則とひ孫・小川楽生が株式会社として継承いたしました。
+        </p>
+        <p>
+          「共暮らし」をテーマに、飲食・漁業・宿泊・スポーツ・建設・文化・関係人口創出の
+          7つの事業を通じて、能登の暮らしを守り、育てていきます。
+        </p>
+        <p>
+          今後ともどうぞよろしくお願いいたします。
+        </p>
+      `,
+    },
+  ];
+
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Post {
+  slug: string;
+  title: string;
+  date: string;
+  dateLabel: string;
+  category: string;
+  lead: string;
+  body: string;
+}
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+---
+
+<Layout
+  title={`${post.title} | 金丸商店株式会社`}
+  description={post.lead}
+>
+
+  <article class="article">
+
+    <header class="article-header">
+      <div class="article-header__inner">
+        <div class="article-header__meta">
+          <a href="/news" class="article-header__back">← お知らせ一覧</a>
+          <span class="article-header__category">{post.category}</span>
+          <time class="article-header__date" datetime={post.date}>{post.dateLabel}</time>
+        </div>
+        <h1 class="article-header__title">{post.title}</h1>
+        <p class="article-header__lead">{post.lead}</p>
+      </div>
+    </header>
+
+    <div class="article-body">
+      <div class="container">
+        <div class="article-body__content" set:html={post.body} />
+        <div class="article-body__footer">
+          <a href="/news" class="link-arrow">お知らせ一覧に戻る</a>
+        </div>
+      </div>
+    </div>
+
+  </article>
+
+</Layout>
+
+<style>
+  .article-header {
+    padding: 140px 0 64px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .article-header__inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--side-pad);
+  }
+
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .article-header__back {
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    transition: color var(--dur) var(--ease);
+  }
+
+  .article-header__back:hover {
+    color: var(--shu);
+  }
+
+  .article-header__category {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--gray);
+    border: 1px solid var(--line);
+    padding: 3px 12px;
+  }
+
+  .article-header__date {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    font-feature-settings: "tnum";
+  }
+
+  .article-header__title {
+    font-family: var(--font-serif);
+    font-size: clamp(22px, 3.5vw, 36px);
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    line-height: 1.55;
+    color: var(--ink);
+    margin-bottom: 20px;
+    max-width: 760px;
+  }
+
+  .article-header__lead {
+    font-size: 16px;
+    line-height: 2;
+    color: var(--gray);
+    max-width: 640px;
+  }
+
+  .article-body {
+    padding: clamp(60px, 8vw, 100px) 0;
+  }
+
+  .article-body__content {
+    max-width: 680px;
+    font-size: 16px;
+    line-height: 2.2;
+    color: var(--gray);
+  }
+
+  .article-body__content :global(p + p) {
+    margin-top: 1.6em;
+  }
+
+  .article-body__footer {
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid var(--line);
+  }
+</style>

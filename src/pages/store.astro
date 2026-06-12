@@ -1,0 +1,84 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="店 | 金丸商店株式会社"
+  description="金丸商店の店舗・商品情報。現在準備中です。"
+>
+
+  <section class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__label">Store</span>
+      <h1 class="page-hero__title">店</h1>
+    </div>
+  </section>
+
+  <section class="store-coming section">
+    <div class="container">
+      <div class="store-coming__inner">
+        <div class="store-coming__mark" aria-hidden="true">
+          <img src="/images/logo-mark.svg" alt="" role="presentation" width="64" height="64" />
+        </div>
+        <h2 class="store-coming__title">準備中です</h2>
+        <p class="store-coming__body">
+          金丸商店の店舗と商品情報は、現在準備中です。<br />
+          日々の活動は Instagram でお知らせしています。
+        </p>
+        <div class="store-coming__links">
+          <a href="https://www.instagram.com/kanemaru.ltd/" class="btn" target="_blank" rel="noopener noreferrer">
+            Instagram を見る
+          </a>
+          <a href="/news" class="link-arrow">お知らせ一覧</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .store-coming {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .store-coming__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 28px;
+    padding: clamp(40px, 8vw, 80px) 0;
+  }
+
+  .store-coming__mark {
+    opacity: 0.4;
+  }
+
+  .store-coming__title {
+    font-family: var(--font-serif);
+    font-size: clamp(24px, 3.5vw, 38px);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .store-coming__body {
+    font-size: 15px;
+    line-height: 2.2;
+    color: var(--gray);
+    max-width: 480px;
+  }
+
+  .store-coming__links {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+</style>

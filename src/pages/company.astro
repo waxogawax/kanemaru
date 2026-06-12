@@ -1,0 +1,179 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const companyInfo = [
+  { label: '社名',     value: '金丸商店株式会社' },
+  { label: '共同代表', value: '小川 勝則　小川 楽生' },
+  { label: '創業',     value: '大正7年（1918年頃）宇出津にて氷水屋として創業' },
+  { label: '法人設立', value: '2025年7月' },
+  { label: '所在地',   value: '石川県鳳珠郡能登町字宇出津へ字29番地1' },
+  { label: '電話番号', value: '(0768) 62-8100', href: 'tel:0768628100' },
+  { label: 'メール',   value: 'info@kanemaru.ltd', href: 'mailto:info@kanemaru.ltd' },
+  { label: '事業内容', value: '飲食・小売（かねまる）、漁業・水産（漁心庵）、温泉旅館（能登屋）、スポーツクラブ（NASW）、建設・解体（工務店あおばち組）、文化・キュレーション（nowtocura のとくら）、関係人口創出（HERO\'s Labo）' },
+];
+---
+
+<Layout
+  title="会社概要 | 金丸商店株式会社"
+  description="金丸商店株式会社の会社概要、所在地、お問い合わせ先。"
+>
+
+  <section class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__label">Company</span>
+      <h1 class="page-hero__title">会社概要</h1>
+    </div>
+  </section>
+
+  <section class="section company-section">
+    <div class="container">
+      <div class="company-inner">
+        <div class="company-table-wrap">
+          <table class="company-table">
+            <tbody>
+              {companyInfo.map(row => (
+                <tr>
+                  <th scope="row">{row.label}</th>
+                  <td>
+                    {row.href
+                      ? <a href={row.href}>{row.value}</a>
+                      : row.value
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="company-contact">
+          <span class="section-label">Contact</span>
+          <h2 class="company-contact__title">お問い合わせ</h2>
+          <p class="company-contact__body">
+            事業・お取引・メディア取材・移住相談など、<br />
+            お気軽にご連絡ください。
+          </p>
+          <a href="mailto:info@kanemaru.ltd" class="btn">
+            メールでお問い合わせ
+          </a>
+          <p class="company-contact__note">
+            ご回答は営業日3日以内を目安にお返しします。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .company-inner {
+    display: grid;
+    grid-template-columns: 1fr minmax(280px, 360px);
+    gap: 80px;
+    align-items: start;
+  }
+
+  .company-table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .company-table tr {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .company-table tr:first-child {
+    border-top: 1px solid var(--line);
+  }
+
+  .company-table th {
+    padding: 20px 24px 20px 0;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    white-space: nowrap;
+    vertical-align: top;
+    text-align: left;
+    width: 110px;
+  }
+
+  .company-table td {
+    padding: 20px 0;
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--ink);
+    vertical-align: top;
+  }
+
+  .company-table td a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color var(--dur) var(--ease);
+  }
+
+  .company-table td a:hover {
+    color: var(--shu);
+  }
+
+  .company-contact {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 88px;
+  }
+
+  .company-contact__title {
+    font-family: var(--font-serif);
+    font-size: clamp(22px, 2.5vw, 28px);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .company-contact__body {
+    font-size: 14px;
+    line-height: 2;
+    color: var(--gray);
+  }
+
+  .company-contact .btn {
+    align-self: flex-start;
+    margin-top: 8px;
+  }
+
+  .company-contact__note {
+    font-size: 12px;
+    color: var(--gray);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 900px) {
+    .company-inner {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    .company-contact {
+      position: static;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .company-table th,
+    .company-table td {
+      padding: 16px 0;
+    }
+
+    .company-table th {
+      width: 90px;
+    }
+  }
+</style>

@@ -1,76 +1,74 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const newsItems = [
+  {
+    date: '2026-06-01',
+    dateLabel: '2026.06.01',
+    category: 'プロジェクト',
+    title: '能登アップサイクルプラットフォーム事務局を開設しました（7団体）',
+    href: '/news/2026-06-noto-upcycle',
+  },
+  {
+    date: '2025-07-01',
+    dateLabel: '2025.07.01',
+    category: 'お知らせ',
+    title: '金丸商店株式会社として事業を継承しました',
+    href: '/news/2025-07-founding',
+  },
+  {
+    date: '2025-09-05',
+    dateLabel: '2025.09.05',
+    category: 'Instagram',
+    title: 'あばれ祭の季節。宇出津の夏を、今年も迎えました。',
+    href: 'https://www.instagram.com/kanemaru.ltd/',
+    external: true,
+  },
+];
+
+const dewoni = [
+  {
+    particle: 'で',
+    label: '日々を営む',
+    group: 'de',
+    href: '/business#de',
+    businesses: ['かねまる', '漁心庵', '能登屋', 'NASW'],
+  },
+  {
+    particle: 'を',
+    label: '土地を継ぐ',
+    group: 'wo',
+    href: '/business#wo',
+    businesses: ['工務店あおばち組', 'nowtocura のとくら'],
+  },
+  {
+    particle: 'に',
+    label: '人を迎える',
+    group: 'ni',
+    href: '/business#ni',
+    businesses: ["HERO's Labo"],
+  },
+];
 ---
 
 <Layout
-  title="金丸商店 | 能登・宇出津"
-  description="金丸商店は、石川県能登町宇出津に根ざした商店です。土地に根ざした品々と、人の手の温度を大切にしています。"
+  title="金丸商店株式会社 | 能登・宇出津"
+  description="大正7年、能登町宇出津の氷水屋から始まった金丸商店。共同代表 小川勝則・小川楽生が2025年7月に株式会社として継承し、「共暮らし」をテーマに7つの事業を営んでいます。"
 >
-
-  <!-- =====================
-       Header
-       ===================== -->
-  <header class="site-header" id="top">
-    <div class="site-header__inner">
-      <a href="/" class="site-logo" aria-label="金丸商店 ホームへ">
-        <img src="/images/logo.svg" alt="金丸商店" />
-      </a>
-
-      <nav class="site-nav" aria-label="グローバルナビゲーション">
-        <a href="/">ホーム</a>
-        <a href="#about">金丸商店について</a>
-        <a href="#commitment">こだわり</a>
-        <a href="#products">商品紹介</a>
-        <a href="#news">お知らせ</a>
-        <a href="#company">会社概要</a>
-        <a href="#contact" class="nav-contact">お問い合わせ</a>
-      </nav>
-
-      <button
-        class="nav-toggle"
-        id="navToggle"
-        aria-label="メニューを開く"
-        aria-expanded="false"
-        aria-controls="navOverlay"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Mobile overlay nav -->
-  <div class="nav-overlay" id="navOverlay" aria-hidden="true" role="navigation" aria-label="モバイルナビゲーション">
-    <a href="/">ホーム</a>
-    <a href="#about">金丸商店について</a>
-    <a href="#commitment">こだわり</a>
-    <a href="#products">商品紹介</a>
-    <a href="#news">お知らせ</a>
-    <a href="#company">会社概要</a>
-    <a href="#contact">お問い合わせ</a>
-  </div>
 
   <!-- =====================
        Hero
        ===================== -->
   <section class="hero" aria-label="メインビジュアル">
     <div class="hero__inner">
-      <div class="hero__copy">
+      <div class="hero__left">
         <span class="hero__label">Kanemaru Shoten, Ushitsu, Noto</span>
-        <h1 class="hero__catch">
-          能登でをに、暮らす。<br />
-          宇出津の氷水屋から、<br />
-          くらしを仕事に。
-        </h1>
-        <p class="hero__sub">
-          金丸商店は、土地に根ざした品々と、<br />
-          人の手の温度を大切にする商店です。
-        </p>
+        <p class="hero__sub">氷水屋から、<br />暮らしの事業へ。</p>
+        <a href="/about" class="link-arrow hero__cta">あり方を読む</a>
       </div>
-      <div class="hero__vertical" aria-hidden="true">
-        <p class="hero__vertical-text">能登・宇出津　金丸商店</p>
-      </div>
+      <h1 class="hero__catch" aria-label="能登でをに、暮らす。">
+        能登でをに、暮らす。
+      </h1>
     </div>
     <div class="hero__scroll" aria-hidden="true">
       <div class="hero__scroll-line"></div>
@@ -79,311 +77,493 @@ import Layout from '../layouts/Layout.astro';
   </section>
 
   <!-- =====================
-       Statement
+       でをにダイアグラム
        ===================== -->
-  <section class="statement section" id="about">
-    <div class="statement__inner">
-      <span class="section-label">Our Philosophy</span>
-      <h2 class="statement__title">金丸商店のあり方</h2>
-
-      <div class="statement__mark">
-        <img src="/images/logo-mark.svg" alt="" role="presentation" width="64" height="64" />
-      </div>
-
-      <div class="statement__divider"></div>
-
-      <div class="statement__body">
-        <p>
-          明治の末、能登半島の北東に位置する宇出津の地で、初代金丸は氷水屋として商いを始めました。
-          夏の暑い盛りに人々に涼を届けるそのしごとは、単なる商売ではなく、
-          暮らしに寄り添うものでした。
-        </p>
-        <p>
-          時代が変わり、扱う品々は変わりました。しかし私たちが大切にしてきたことは変わりません。
-          「この土地に生きる人たちのそばに、いつもいる」ということ。
-          誠実にものを選び、丁寧に届け、長く続けることで、
-          地域の暮らしを支える商店であり続けることが、金丸商店の使命だと考えています。
-        </p>
-        <p>
-          能登の風土が育んだ素材、職人の手による品、
-          そして時間をかけて育まれた信頼。
-          金丸商店は、そのすべてを大切にしながら、これからもこの地に根ざし続けます。
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- =====================
-       Products
-       ===================== -->
-  <section class="products section" id="products">
-    <div class="container">
-      <div class="section-header section-header--center">
-        <span class="section-label">Products</span>
-        <h2 class="section-title">商品紹介</h2>
-      </div>
-
-      <div class="products__grid">
-        <article class="product-card fade-in">
-          <div class="product-card__img">
-            <img
-              src="/images/product-01.jpg"
-              alt="能登の地塩"
-              loading="lazy"
-              onerror="this.style.display='none'"
-            />
-          </div>
-          <span class="product-card__label">Seasoning</span>
-          <h3 class="product-card__name">能登の地塩</h3>
-          <p class="product-card__desc">
-            奥能登の海水を丁寧に煮詰めて作った平釜塩。
-            まろやかな旨みが深く、食材本来の味を引き立てます。
-          </p>
-        </article>
-
-        <article class="product-card fade-in">
-          <div class="product-card__img">
-            <img
-              src="/images/product-02.jpg"
-              alt="能登醤油"
-              loading="lazy"
-              onerror="this.style.display='none'"
-            />
-          </div>
-          <span class="product-card__label">Condiment</span>
-          <h3 class="product-card__name">能登醤油</h3>
-          <p class="product-card__desc">
-            地元の蔵元が手間をかけて仕込んだ醤油。
-            色濃く、香り高く、深い余韻が続きます。
-          </p>
-        </article>
-
-        <article class="product-card fade-in">
-          <div class="product-card__img">
-            <img
-              src="/images/product-03.jpg"
-              alt="山の幸セット"
-              loading="lazy"
-              onerror="this.style.display='none'"
-            />
-          </div>
-          <span class="product-card__label">Gift</span>
-          <h3 class="product-card__name">山の幸セット</h3>
-          <p class="product-card__desc">
-            能登の山里から届く、乾物や保存食の詰め合わせ。
-            贈り物にも、日々の食卓にも。
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- =====================
-       Commitment
-       ===================== -->
-  <section class="commitment section" id="commitment">
+  <section class="dewoni-section section" aria-label="事業構造">
     <div class="container">
       <div class="section-header">
-        <span class="section-label">Our Commitment</span>
-        <h2 class="section-title section-title--light">こだわりについて</h2>
+        <span class="section-label">Business Structure</span>
+        <h2 class="section-title">能登でをに、暮らす。</h2>
       </div>
-
-      <div class="commitment__grid">
-        <div class="commitment-item fade-in">
-          <span class="commitment-item__num">01</span>
-          <h3 class="commitment-item__title">選ぶ</h3>
-          <p class="commitment-item__body">
-            産地へ足を運び、つくり手の顔を見て選びます。
-            大量に、便利に、ではなく、本当に良いものだけを、少しずつ。
-            時間をかけて選ぶことが、品質への誠実さだと考えています。
-          </p>
-        </div>
-
-        <div class="commitment-item fade-in">
-          <span class="commitment-item__num">02</span>
-          <h3 class="commitment-item__title">届ける</h3>
-          <p class="commitment-item__body">
-            品物だけでなく、その背景にある物語も一緒にお届けします。
-            誰が、どこで、どのように作ったのか。
-            その文脈を知ることで、品物はもっと豊かになると信じています。
-          </p>
-        </div>
-
-        <div class="commitment-item fade-in">
-          <span class="commitment-item__num">03</span>
-          <h3 class="commitment-item__title">続ける</h3>
-          <p class="commitment-item__body">
-            金丸商店が続くことで、つくり手も、地域も、続いていける。
-            華やかではないかもしれません。けれど、長く続けることこそが、
-            私たちにできる地域への貢献だと思っています。
-          </p>
-        </div>
+      <p class="dewoni-section__lead">
+        「で」「を」「に」という三つの助詞が、金丸商店の事業構造そのものです。
+        <a href="/business" class="link-inline">7つの事業を見る</a>
+      </p>
+      <div class="dewoni">
+        {dewoni.map(g => (
+          <a href={g.href} class={`dewoni__panel dewoni__panel--${g.group}`} aria-label={`${g.particle}｜${g.label}`}>
+            <div class="dewoni__head">
+              <span class="dewoni__particle">{g.particle}</span>
+              <span class="dewoni__label">{g.label}</span>
+            </div>
+            <ul class="dewoni__list">
+              {g.businesses.map(b => <li>{b}</li>)}
+            </ul>
+            <span class="dewoni__more">事業を見る →</span>
+          </a>
+        ))}
       </div>
     </div>
   </section>
 
   <!-- =====================
-       News
+       News preview
        ===================== -->
-  <section class="news section" id="news">
+  <section class="news-preview section" aria-label="お知らせ">
     <div class="container">
       <div class="section-header">
         <span class="section-label">News</span>
         <h2 class="section-title">お知らせ</h2>
       </div>
-
-      <ul class="news__list">
-        <li class="news-item fade-in">
-          <time class="news-item__date" datetime="2026-05-20">2026.05.20</time>
-          <span class="news-item__category">お知らせ</span>
-          <span class="news-item__title">夏の新商品「能登の地塩 夏仕込み」を販売開始しました</span>
-        </li>
-        <li class="news-item fade-in">
-          <time class="news-item__date" datetime="2026-04-15">2026.04.15</time>
-          <span class="news-item__category">イベント</span>
-          <span class="news-item__title">4月の産地見学ツアーに参加しました ── 輪島塗の蔵元を訪ねて</span>
-        </li>
-        <li class="news-item fade-in">
-          <time class="news-item__date" datetime="2026-03-01">2026.03.01</time>
-          <span class="news-item__category">お知らせ</span>
-          <span class="news-item__title">春季休業のご案内（3月20日〜3月23日）</span>
-        </li>
-        <li class="news-item fade-in">
-          <time class="news-item__date" datetime="2026-01-10">2026.01.10</time>
-          <span class="news-item__category">メディア</span>
-          <span class="news-item__title">北陸の暮らし誌「石川の風」に金丸商店が紹介されました</span>
-        </li>
+      <ul class="news-list">
+        {newsItems.map(item => (
+          <li class="news-item fade-in">
+            <a
+              href={item.href}
+              class="news-item__link"
+              {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              <time class="news-item__date" datetime={item.date}>{item.dateLabel}</time>
+              <span class="news-item__category">{item.category}</span>
+              <span class="news-item__title">{item.title}</span>
+              {item.external && (
+                <svg class="news-item__ext" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+              )}
+            </a>
+          </li>
+        ))}
       </ul>
-
-      <div class="news__more">
-        <a href="#" class="link-arrow">お知らせ一覧</a>
+      <div class="news-preview__more">
+        <a href="/news" class="link-arrow">お知らせ一覧</a>
       </div>
     </div>
   </section>
 
   <!-- =====================
-       Company
+       Members teaser
        ===================== -->
-  <section class="company section" id="company">
+  <section class="members-teaser" aria-label="人">
     <div class="container">
-      <div class="company__inner">
-        <div>
-          <div class="section-header">
-            <span class="section-label">Company</span>
-            <h2 class="section-title">会社概要</h2>
+      <div class="members-teaser__inner">
+        <div class="members-teaser__text">
+          <span class="section-label">Members</span>
+          <h2 class="members-teaser__title">共に営む人</h2>
+          <p class="members-teaser__body">
+            孫と、ひ孫と。大正から続く問いを、二人で引き受けています。
+          </p>
+          <a href="/members" class="link-arrow">人を見る</a>
+        </div>
+        <div class="members-teaser__faces">
+          <div class="member-face">
+            <div class="member-face__photo member-face__photo--placeholder" aria-label="小川勝則の写真"></div>
+            <span class="member-face__name">小川 勝則</span>
+            <span class="member-face__role">共同代表</span>
+          </div>
+          <div class="member-face">
+            <div class="member-face__photo member-face__photo--placeholder" aria-label="小川楽生の写真"></div>
+            <span class="member-face__name">小川 楽生</span>
+            <span class="member-face__role">共同代表</span>
           </div>
         </div>
-
-        <table class="company__table">
-          <tbody>
-            <tr>
-              <th scope="row">社名</th>
-              <td>金丸商店</td>
-            </tr>
-            <tr>
-              <th scope="row">所在地</th>
-              <td>〒927-0000<br />石川県鳳珠郡能登町宇出津○○番地</td>
-            </tr>
-            <tr>
-              <th scope="row">電話番号</th>
-              <td>0768-XX-XXXX</td>
-            </tr>
-            <tr>
-              <th scope="row">営業時間</th>
-              <td>平日 9:00 〜 17:00<br />土曜 9:00 〜 12:00</td>
-            </tr>
-            <tr>
-              <th scope="row">定休日</th>
-              <td>日曜・祝日</td>
-            </tr>
-            <tr>
-              <th scope="row">創業</th>
-              <td>明治末期（1908年頃）</td>
-            </tr>
-            <tr>
-              <th scope="row">代表者</th>
-              <td>金丸 ○○</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </section>
-
-  <!-- =====================
-       Contact
-       ===================== -->
-  <section class="contact section" id="contact">
-    <div class="container">
-      <h2 class="contact__title">お問い合わせ</h2>
-      <p class="contact__body">
-        商品やお取引に関するご質問は、お気軽にご連絡ください。<br />
-        お問い合わせへのご回答は、営業日3日以内を目安にお返しします。
-      </p>
-      <a href="mailto:info@kanemaru-shoten.jp" class="btn">メールでお問い合わせ</a>
-    </div>
-  </section>
-
-  <!-- =====================
-       Footer
-       ===================== -->
-  <footer class="site-footer">
-    <div class="site-footer__inner">
-      <div class="site-footer__top">
-        <a href="/" class="footer-logo" aria-label="金丸商店 ホームへ">
-          <img src="/images/logo.svg" alt="金丸商店" />
-        </a>
-
-        <nav class="footer-nav" aria-label="フッターナビゲーション">
-          <a href="#about">金丸商店について</a>
-          <a href="#commitment">こだわり</a>
-          <a href="#products">商品紹介</a>
-          <a href="#news">お知らせ</a>
-          <a href="#company">会社概要</a>
-          <a href="#contact">お問い合わせ</a>
-        </nav>
-      </div>
-
-      <div class="site-footer__bottom">
-        <p class="copyright">&copy; 2026 金丸商店. All rights reserved.</p>
-        <p class="copyright">石川県能登町宇出津</p>
-      </div>
-    </div>
-  </footer>
 
 </Layout>
 
+<style>
+  /* ─── Hero ─── */
+
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: clamp(64px, 8vh, 100px);
+    background-color: var(--ink);
+  }
+
+  .hero__inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--side-pad);
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .hero__left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding-bottom: 8px;
+  }
+
+  .hero__label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(250, 248, 244, 0.38);
+  }
+
+  .hero__sub {
+    font-family: var(--font-serif);
+    font-size: clamp(18px, 2.2vw, 26px);
+    font-weight: 500;
+    line-height: 2;
+    letter-spacing: 0.1em;
+    color: rgba(250, 248, 244, 0.72);
+  }
+
+  .hero__cta {
+    color: rgba(250, 248, 244, 0.72);
+    width: fit-content;
+  }
+
+  .hero__catch {
+    writing-mode: vertical-rl;
+    font-family: var(--font-serif);
+    font-size: clamp(28px, 4.5vw, 60px);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.18em;
+    color: var(--paper);
+    flex-shrink: 0;
+  }
+
+  .hero__scroll {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: rgba(250, 248, 244, 0.35);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .hero__scroll-line {
+    width: 1px;
+    height: 36px;
+    background: rgba(250, 248, 244, 0.3);
+    animation: scrollLine 2.2s var(--ease) infinite;
+    transform-origin: top;
+  }
+
+  @keyframes scrollLine {
+    0%   { transform: scaleY(0); opacity: 0; }
+    40%  { transform: scaleY(1); opacity: 1; }
+    100% { transform: scaleY(1); opacity: 0; }
+  }
+
+  /* ─── でをにダイアグラム ─── */
+
+  .dewoni-section__lead {
+    font-size: 15px;
+    line-height: 2;
+    color: var(--gray);
+    margin-bottom: 48px;
+    max-width: 560px;
+  }
+
+  .link-inline {
+    color: var(--shu);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .dewoni {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--line);
+  }
+
+  .dewoni__panel {
+    padding: clamp(28px, 4vw, 48px) clamp(20px, 3vw, 36px);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: background var(--dur) var(--ease);
+    text-decoration: none;
+  }
+
+  .dewoni__panel:last-child {
+    border-right: none;
+  }
+
+  .dewoni__panel--de { background: color-mix(in srgb, var(--de) 6%, var(--paper)); }
+  .dewoni__panel--wo { background: color-mix(in srgb, var(--wo) 6%, var(--paper)); }
+  .dewoni__panel--ni { background: color-mix(in srgb, var(--ni) 6%, var(--paper)); }
+
+  .dewoni__panel--de:hover { background: color-mix(in srgb, var(--de) 10%, var(--paper)); }
+  .dewoni__panel--wo:hover { background: color-mix(in srgb, var(--wo) 10%, var(--paper)); }
+  .dewoni__panel--ni:hover { background: color-mix(in srgb, var(--ni) 10%, var(--paper)); }
+
+  .dewoni__head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid;
+  }
+
+  .dewoni__panel--de .dewoni__head { border-color: var(--de); }
+  .dewoni__panel--wo .dewoni__head { border-color: var(--wo); }
+  .dewoni__panel--ni .dewoni__head { border-color: var(--ni); }
+
+  .dewoni__particle {
+    font-family: var(--font-serif);
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .dewoni__panel--de .dewoni__particle { color: var(--de); }
+  .dewoni__panel--wo .dewoni__particle { color: var(--wo); }
+  .dewoni__panel--ni .dewoni__particle { color: var(--ni); }
+
+  .dewoni__label {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gray);
+  }
+
+  .dewoni__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .dewoni__list li {
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: 0.06em;
+    line-height: 1.5;
+  }
+
+  .dewoni__more {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--gray);
+    margin-top: auto;
+  }
+
+  /* ─── News preview ─── */
+
+  .news-list {
+    border-top: 1px solid var(--line);
+  }
+
+  .news-item {}
+
+  .news-item__link {
+    display: grid;
+    grid-template-columns: 96px 80px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+    transition: padding var(--dur) var(--ease), background var(--dur) var(--ease), margin var(--dur) var(--ease);
+  }
+
+  .news-item__link:hover {
+    background: color-mix(in srgb, var(--shu) 4%, var(--paper));
+    padding-left: 16px;
+    padding-right: 16px;
+    margin: 0 -16px;
+  }
+
+  .news-item__date {
+    font-size: 12px;
+    color: var(--gray);
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+    font-feature-settings: "tnum";
+  }
+
+  .news-item__category {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--gray);
+    border: 1px solid var(--line);
+    padding: 3px 10px;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .news-item__title {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+
+  .news-item__ext {
+    color: var(--gray);
+    flex-shrink: 0;
+  }
+
+  .news-preview__more {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* ─── Members teaser ─── */
+
+  .members-teaser {
+    background: var(--ink);
+    padding: clamp(80px, 10vw, 140px) 0;
+  }
+
+  .members-teaser__inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .members-teaser__text {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .members-teaser__text .section-label {
+    color: rgba(250, 248, 244, 0.4);
+  }
+
+  .members-teaser__title {
+    font-family: var(--font-serif);
+    font-size: clamp(24px, 3vw, 38px);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--paper);
+    line-height: 1.5;
+  }
+
+  .members-teaser__body {
+    font-size: 15px;
+    line-height: 2;
+    color: rgba(250, 248, 244, 0.55);
+    max-width: 400px;
+  }
+
+  .members-teaser__text .link-arrow {
+    color: rgba(250, 248, 244, 0.65);
+    width: fit-content;
+  }
+
+  .members-teaser__faces {
+    display: flex;
+    gap: 32px;
+    flex-shrink: 0;
+  }
+
+  .member-face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .member-face__photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(250, 248, 244, 0.08);
+    border: 1px solid rgba(250, 248, 244, 0.15);
+  }
+
+  .member-face__name {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    color: var(--paper);
+    letter-spacing: 0.08em;
+  }
+
+  .member-face__role {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: rgba(250, 248, 244, 0.4);
+  }
+
+  /* ─── Responsive ─── */
+
+  @media (max-width: 768px) {
+    .hero__inner {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      padding-bottom: 0;
+    }
+
+    .hero__catch {
+      writing-mode: horizontal-tb;
+      font-size: clamp(28px, 8vw, 40px);
+    }
+
+    .dewoni {
+      grid-template-columns: 1fr;
+    }
+
+    .dewoni__panel {
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .dewoni__panel:last-child {
+      border-bottom: none;
+    }
+
+    .members-teaser__inner {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    .members-teaser__faces {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .news-item__link {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+    }
+
+    .news-item__date   { order: 1; }
+    .news-item__category { order: 2; justify-self: end; }
+    .news-item__title  { order: 3; grid-column: 1 / -1; margin-top: 4px; }
+    .news-item__ext    { display: none; }
+
+    .news-item__link:hover {
+      padding-left: 0;
+      padding-right: 0;
+      margin: 0;
+    }
+  }
+</style>
+
 <script>
-  // ── Mobile nav ──────────────────────────────────
-  const toggle = document.getElementById('navToggle') as HTMLButtonElement | null;
-  const overlay = document.getElementById('navOverlay') as HTMLElement | null;
-
-  function openNav() {
-    toggle?.classList.add('is-open');
-    overlay?.classList.add('is-open');
-    toggle?.setAttribute('aria-expanded', 'true');
-    overlay?.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeNav() {
-    toggle?.classList.remove('is-open');
-    overlay?.classList.remove('is-open');
-    toggle?.setAttribute('aria-expanded', 'false');
-    overlay?.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }
-
-  toggle?.addEventListener('click', () => {
-    toggle.getAttribute('aria-expanded') === 'true' ? closeNav() : openNav();
-  });
-
-  overlay?.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeNav));
-
-  // ── Scroll fade-in ───────────────────────────────
   const observer = new IntersectionObserver(
     (entries) => {
-      entries.forEach((entry) => {
+      entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('is-visible');
           observer.unobserve(entry.target);
@@ -393,5 +573,5 @@ import Layout from '../layouts/Layout.astro';
     { threshold: 0.1, rootMargin: '0px 0px -48px 0px' }
   );
 
-  document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 </script>
