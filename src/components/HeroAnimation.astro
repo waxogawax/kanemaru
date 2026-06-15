@@ -1,0 +1,593 @@
+---
+// HeroAnimation — initial-visit Canvas 2D animation
+// Phases: seigaiha → green particles → fire sparks → snow → logo convergence
+---
+
+<div id="ka-ov" class="ka-ov" aria-hidden="true" role="presentation">
+  <canvas id="ka-cv"></canvas>
+
+  <!-- Final frame (hidden until reveal) -->
+  <div id="ka-fin" class="ka-fin">
+    <img id="ka-logo" src="/images/kanemaru_logo.png" alt="創業大正七年 金丸商店" decoding="async" />
+    <p id="ka-copy" class="ka-copy">能登でをに、暮らす。</p>
+  </div>
+
+  <button id="ka-skip" class="ka-skip" type="button">とばす</button>
+</div>
+
+<style>
+  .ka-ov {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+    background: #FAF8F4;
+    transition: opacity 0.7s ease;
+  }
+
+  #ka-cv {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+  }
+
+  .ka-fin {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    pointer-events: none;
+  }
+
+  #ka-logo {
+    opacity: 0;
+    max-width: min(55vw, 580px);
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: opacity 0.8s ease;
+  }
+
+  .ka-copy {
+    opacity: 0;
+    font-family: "Shippori Mincho", "Noto Serif JP", serif;
+    font-size: clamp(16px, 2.2vw, 26px);
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: #2B2622;
+    transition: opacity 0.8s ease;
+  }
+
+  .ka-skip {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    pointer-events: auto;
+    background: none;
+    border: 1px solid rgba(43, 38, 34, 0.28);
+    color: rgba(43, 38, 34, 0.5);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    padding: 7px 16px;
+    cursor: pointer;
+    font-family: sans-serif;
+    transition: border-color 0.2s, color 0.2s;
+    z-index: 201;
+  }
+
+  .ka-skip:hover {
+    border-color: rgba(43, 38, 34, 0.55);
+    color: rgba(43, 38, 34, 0.75);
+  }
+
+  /* Dark phase: invert skip colors */
+  .ka-ov.dark .ka-skip {
+    border-color: rgba(250, 248, 244, 0.28);
+    color: rgba(250, 248, 244, 0.5);
+  }
+
+  .ka-ov.dark .ka-skip:hover {
+    border-color: rgba(250, 248, 244, 0.55);
+    color: rgba(250, 248, 244, 0.75);
+  }
+</style>
+
+<script>
+(function () {
+  /* ─── Guards ────────────────────────────────────────── */
+  const ov    = document.getElementById('ka-ov')
+  const cv    = document.getElementById('ka-cv')
+  const logo  = document.getElementById('ka-logo')
+  const copy  = document.getElementById('ka-copy')
+  const skip  = document.getElementById('ka-skip')
+
+  if (!ov || !cv || !logo || !copy || !skip) return
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const played  = sessionStorage.getItem('ka-played')
+
+  function showFinal () {
+    cv.style.display = 'none'
+    logo.style.opacity  = '1'
+    copy.style.opacity  = '1'
+    skip.style.display  = 'none'
+    ov.style.transition = 'opacity 0.6s ease'
+    setTimeout(() => {
+      ov.style.opacity = '0'
+      setTimeout(() => ov.remove(), 700)
+    }, 600)
+  }
+
+  if (reduced || played) { showFinal(); return }
+  sessionStorage.setItem('ka-played', '1')
+  skip.addEventListener('click', () => { cancelAnimationFrame(rafId); showFinal() })
+
+  /* ─── Canvas setup ──────────────────────────────────── */
+  const isMob  = window.innerWidth < 768
+  const DPR    = Math.min(devicePixelRatio || 1, 2)
+  const MAX_P  = isMob ? 3200 : 10000
+
+  let W = window.innerWidth
+  let H = isMob ? Math.round(window.innerHeight * 0.7) : window.innerHeight
+
+  function sizeCanvas () {
+    W = window.innerWidth
+    H = isMob ? Math.round(window.innerHeight * 0.7) : window.innerHeight
+    cv.width  = W * DPR
+    cv.height = H * DPR
+    cv.style.width  = W + 'px'
+    cv.style.height = H + 'px'
+  }
+  sizeCanvas()
+
+  const ctx = cv.getContext('2d')
+  ctx.scale(DPR, DPR)
+
+  /* ─── Helpers ──────────────────────────────────────── */
+  const lerp  = (a, b, t) => a + (b - a) * t
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
+  function ss (lo, hi, t) {        // smoothstep
+    const x = clamp((t - lo) / (hi - lo), 0, 1)
+    return x * x * (3 - 2 * x)
+  }
+  function lc (c1, c2, t) {        // lerpColor → [r,g,b]
+    return [lerp(c1[0], c2[0], t)|0, lerp(c1[1], c2[1], t)|0, lerp(c1[2], c2[2], t)|0]
+  }
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`
+
+  /* ─── Palette ──────────────────────────────────────── */
+  const C = {
+    paper : [250, 248, 244],
+    dark  : [36,  29,  24],
+    ink   : [43,  38,  34],
+    shu   : [192, 57,  27],
+    de    : [196, 98,  45],
+    ni    : [61,  122, 85],
+    wo    : [51,  96,  140],
+    white : [255, 255, 255],
+  }
+
+  /* ─── Timeline (seconds) ────────────────────────────── */
+  const T = {
+    sgStart : 0,    sgEnd  : 2.2,
+    spStart : 1.0,  spEnd  : 2.0,
+    grEnd   : 2.6,
+    fiStart : 2.6,  fiEnd  : 4.6,
+    bgDkS   : 2.6,  bgDkE  : 3.5,
+    snStart : 4.5,  snEnd  : 6.8,
+    snExS   : 4.5,  snExE  : 5.5,
+    acStart : 6.0,  acEnd  : 7.8,
+    buStart : 7.2,  buEnd  : 9.5,
+    bgLtS   : 7.2,  bgLtE  : 9.0,
+    rvStart : 9.0,
+    done    : 11.0,
+  }
+
+  /* ─── Background ───────────────────────────────────── */
+  function bgColor (t) {
+    if (t < T.bgDkS) return C.paper
+    if (t < T.bgDkE) return lc(C.paper, C.dark, ss(T.bgDkS, T.bgDkE, t))
+    if (t < T.bgLtS) return C.dark
+    if (t < T.bgLtE) return lc(C.dark, C.paper, ss(T.bgLtS, T.bgLtE, t))
+    return C.paper
+  }
+
+  /* ─── Seigaiha ─────────────────────────────────────── */
+  function drawSeigaiha (t) {
+    const alpha = ss(T.sgStart, T.sgStart + 0.5, t) *
+                  (1 - ss(T.sgEnd - 0.6, T.sgEnd, t))
+    if (alpha < 0.01) return
+
+    const R    = isMob ? 38 : 52
+    const drift = (t * 11) % (R * 2)
+    const cols  = Math.ceil(W / (R * 2)) + 3
+    const rows  = Math.ceil(H * 0.45 / R) + 2
+
+    ctx.save()
+    ctx.translate(-drift, 0)
+    for (let row = 0; row < rows; row++) {
+      const yBase = H - row * R * 0.72
+      for (let col = 0; col < cols + 1; col++) {
+        const xOff = (row % 2 === 0) ? 0 : R
+        const cx   = col * R * 2 + xOff
+        const cy   = yBase + Math.sin((col * 0.65 + t * 1.6)) * (isMob ? 9 : 13)
+        for (let ring = 3; ring >= 1; ring--) {
+          ctx.beginPath()
+          ctx.arc(cx, cy, R * (ring / 3), Math.PI, 0, false)
+          ctx.strokeStyle = rgba(C.wo, alpha * 0.11 * ring)
+          ctx.lineWidth   = 1
+          ctx.stroke()
+        }
+      }
+    }
+    ctx.restore()
+  }
+
+  /* ─── Particle class ───────────────────────────────── */
+  class P {
+    constructor (id) {
+      this.id    = id
+      this.nOff  = Math.random() * 1000
+      this.alive = false
+      this.isSnowEx = false
+      // physics
+      this.x = 0; this.y = 0
+      this.vx = 0; this.vy = 0
+      this.r  = 1.5
+      this.baseAlpha = 0.6
+      // target
+      this.tx = null; this.ty = null
+      this.tcR = 0; this.tcG = 0; this.tcB = 0
+      this.delay   = 0
+      this.settled = false
+    }
+    init () {
+      this.x = Math.random() * W
+      this.y = H + Math.random() * H * 0.25
+      this.vx = (Math.random() - 0.5) * 0.4
+      this.vy = -(0.7 + (this.nOff * 0.0013) % 1.0)
+      this.r  = 1 + (this.nOff * 0.002)  % 2.0
+      this.baseAlpha = 0.35 + (this.nOff * 0.0007) % 0.55
+    }
+    initSnow () {
+      this.x = Math.random() * W
+      this.y = -(Math.random() * H * 0.08)
+      this.vx = (Math.random() - 0.5) * 0.35
+      this.vy = 0.7 + (this.nOff * 0.0009) % 0.9
+      this.r  = 1 + (this.nOff * 0.0015) % 1.8
+      this.baseAlpha = 0.45 + (this.nOff * 0.0006) % 0.45
+      this.isSnowEx = true
+      this.alive = true
+    }
+  }
+
+  const parts    = Array.from({ length: MAX_P }, (_, i) => new P(i))
+  const snowEx   = []
+  let spawnIdx   = 0
+  let snExIdx    = 0
+  const MAX_SNX  = (MAX_P * 0.25) | 0
+  let snowSurf   = H + 200  // y of snow surface (rises from bottom)
+  let targets    = []
+  let tgtAssigned = false
+
+  /* ─── Spawn ────────────────────────────────────────── */
+  function spawnParticles (t) {
+    if (t >= T.spStart && t <= T.spEnd) {
+      const want = Math.floor(ss(T.spStart, T.spEnd, t) * MAX_P)
+      while (spawnIdx < want) { parts[spawnIdx].init(); parts[spawnIdx].alive = true; spawnIdx++ }
+    }
+    if (t > T.spEnd && spawnIdx < MAX_P) {
+      while (spawnIdx < MAX_P) { parts[spawnIdx].init(); parts[spawnIdx].alive = true; spawnIdx++ }
+    }
+    if (t >= T.snExS && t <= T.snExE && snowEx.length < MAX_SNX) {
+      const want = Math.floor(ss(T.snExS, T.snExE, t) * MAX_SNX)
+      while (snowEx.length < want) { const p = new P(MAX_P + snowEx.length); p.initSnow(); snowEx.push(p) }
+    }
+  }
+
+  /* ─── Per-particle alpha ────────────────────────────── */
+  function getAlpha (p, t, fireP, snowP) {
+    if (!p.alive) return 0
+    let a = p.baseAlpha
+
+    // fade-in on spawn
+    const birthT = T.spStart + (p.id / MAX_P) * (T.spEnd - T.spStart)
+    a *= clamp((t - birthT) * 4, 0, 1)
+
+    // flicker during fire
+    if (fireP > 0.05 && snowP < 0.5) {
+      const flicker = 0.55 + 0.45 * Math.sin(t * 9 + p.nOff * 0.7)
+      a *= lerp(1, flicker, Math.min(fireP * 1.5, 0.7))
+    }
+
+    // particles without targets fade out during build
+    if (t >= T.buStart && p.tx === null && !p.isSnowEx) {
+      a *= clamp(1 - ss(T.buStart, T.buStart + 1.2, t), 0, 1)
+    }
+    // snow extras fade out during build
+    if (p.isSnowEx && t >= T.buStart) {
+      a *= clamp(1 - ss(T.buStart, T.buStart + 1.0, t), 0, 1)
+    }
+
+    return clamp(a, 0, 1)
+  }
+
+  /* ─── Update particle ──────────────────────────────── */
+  function updateP (p, t, fireP, snowP) {
+    if (!p.alive || p.settled) return
+
+    if (t >= T.buStart && p.tx !== null) {
+      const localT = t - T.buStart - p.delay
+      if (localT > 0) {
+        const k    = 0.055 + ss(T.buStart, T.buEnd, t) * 0.04
+        const damp = 0.81
+        p.vx += (p.tx - p.x) * k
+        p.vy += (p.ty - p.y) * k
+        p.vx *= damp; p.vy *= damp
+        if (Math.abs(p.tx - p.x) < 0.8 && Math.abs(p.ty - p.y) < 0.8) {
+          p.x = p.tx; p.y = p.ty; p.vx = 0; p.vy = 0; p.settled = true; return
+        }
+      } else {
+        p.vy += 0.04; p.vy = Math.min(p.vy, 2)  // float down before delay
+      }
+    } else if (p.isSnowEx) {
+      if (p.y >= snowSurf) { p.y = snowSurf; p.vx = 0; p.vy = 0; return }
+      p.vy += 0.015; p.vy = Math.min(p.vy, 2)
+      p.vx  = Math.sin(t * 0.85 + p.nOff) * 0.35
+    } else {
+      // Phase-driven velocity
+      const baseVY = -(0.7 + (p.nOff * 0.00097 % 1.0))
+      const fireVY = -(1.9 + (p.nOff * 0.00089 % 1.5))
+      const snowVY =  (1.4 + (p.nOff * 0.00071 % 0.9))
+      const tgtVY  = lerp(lerp(baseVY, fireVY, fireP), snowVY, snowP)
+      p.vy = lerp(p.vy, tgtVY, 0.038)
+
+      // Wind during fire
+      if (fireP > 0.1) {
+        p.vx += Math.sin(t * 3.1 + p.nOff * 0.1) * fireP * 0.12
+      }
+      p.vx = lerp(p.vx, Math.sin(t * 0.55 + p.nOff) * 0.28, 0.025)
+
+      // Snow surface accumulation
+      if (snowP > 0.4 && !p.isSnowEx) {
+        if (p.y >= snowSurf) { p.y = snowSurf; p.vx = 0; p.vy = 0; return }
+      }
+    }
+
+    p.x += p.vx; p.y += p.vy
+
+    // Horizontal wrap
+    if (p.x < -4) p.x += W + 8
+    if (p.x > W + 4) p.x -= W + 8
+
+    // Respawn at bottom during green/fire (not snow)
+    if (p.y < -30 && snowP < 0.3 && !p.isSnowEx) {
+      p.x = Math.random() * W; p.y = H + 10
+    }
+    // Snow extras: wrap top↔bottom
+    if (p.isSnowEx && p.y > H + 20) { p.x = Math.random() * W; p.y = -15 }
+  }
+
+  /* ─── Shared frame state (set each tick) ──────────────── */
+  // Avoids creating new closure objects per frame
+  let _t = 0, _fireP = 0, _snowP = 0
+  let _cgBase = C.ni, _cgFire = C.de, _cgSnow = C.white
+
+  function updateFrameColors (t, fireP, snowP) {
+    _t = t; _fireP = fireP; _snowP = snowP
+    const baseGreen = lc(C.ni, [80, 145, 100], 0.3)
+    const fireMid   = C.de
+    const fireHot   = C.shu
+    _cgBase = baseGreen
+    _cgFire = fireP < 0.5 ? lc(baseGreen, fireMid, fireP * 2) : lc(fireMid, fireHot, (fireP - 0.5) * 2)
+    _cgSnow = lc(_cgFire, C.white, snowP)
+  }
+
+  function particleColor (p) {
+    if (p.isSnowEx) return C.white
+    if (_t >= T.buStart && p.tx !== null) {
+      const bp = clamp((_t - T.buStart - p.delay) / 1.8, 0, 1)
+      return lc(_cgSnow, [p.tcR, p.tcG, p.tcB], bp * bp)
+    }
+    if (_snowP > 0) return _cgSnow
+    if (_fireP > 0) return _cgFire
+    return _cgBase
+  }
+
+  /* ─── Draw all particles ───────────────────────────── */
+  function drawParticles (t, fireP, snowP) {
+    // Draw base particles
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i]
+      if (!p.alive) continue
+      if (p.settled) {
+        if (p.tx !== null) {
+          ctx.fillStyle = rgba([p.tcR, p.tcG, p.tcB], p.baseAlpha * 0.9)
+          ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2)
+        }
+        continue
+      }
+      const a = getAlpha(p, t, fireP, snowP)
+      if (a < 0.01) continue
+      const col = particleColor(p)
+      ctx.fillStyle = rgba(col, a)
+      ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2)
+    }
+    // Draw snow extras
+    for (let i = 0; i < snowEx.length; i++) {
+      const p = snowEx[i]
+      if (!p.alive) continue
+      const a = getAlpha(p, t, fireP, snowP)
+      if (a < 0.01) continue
+      ctx.fillStyle = rgba(C.white, a)
+      ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2)
+    }
+  }
+
+  /* ─── Snow surface ─────────────────────────────────── */
+  function updateSnowSurf (t) {
+    if (t < T.acStart) { snowSurf = H + 200; return }
+    const p = ss(T.acStart, T.acEnd, t)
+    snowSurf = H - H * 0.13 * p
+  }
+
+  function drawSnowSurf (t) {
+    if (t < T.acStart) return
+    const p = ss(T.acStart, T.acEnd, t)
+    if (p < 0.01) return
+    const grad = ctx.createLinearGradient(0, snowSurf - 24, 0, H)
+    grad.addColorStop(0,   rgba(C.white, 0))
+    grad.addColorStop(0.3, rgba(C.white, p * 0.55))
+    grad.addColorStop(1,   rgba(C.white, p * 0.80))
+    ctx.fillStyle = grad
+    ctx.fillRect(0, snowSurf - 24, W, H - snowSurf + 24)
+  }
+
+  /* ─── Logo sampling ─────────────────────────────────── */
+  async function sampleLogo () {
+    return new Promise(resolve => {
+      const img = new Image()
+      img.onload = () => {
+        const dW  = Math.min(W * 0.55, 580)
+        const dH  = dW * (img.naturalHeight / img.naturalWidth)
+        const lx  = (W - dW) / 2
+        const ly  = (H - dH) / 2 - H * 0.03  // very slightly above center
+
+        const oc  = document.createElement('canvas')
+        oc.width  = Math.ceil(dW)
+        oc.height = Math.ceil(dH)
+        const ox  = oc.getContext('2d', { willReadFrequently: true })
+        ox.drawImage(img, 0, 0, oc.width, oc.height)
+
+        const id   = ox.getImageData(0, 0, oc.width, oc.height)
+        const data = id.data
+        const res  = []
+
+        // Step chosen so we get roughly MAX_P candidates from ~15% ink coverage
+        const step = Math.max(2, Math.sqrt(oc.width * oc.height * 0.15 / MAX_P) | 0)
+
+        for (let y = 0; y < oc.height; y += step) {
+          for (let x = 0; x < oc.width; x += step) {
+            const i = (y * oc.width + x) * 4
+            const r = data[i], g = data[i+1], b = data[i+2]
+            const lum = 0.299*r + 0.587*g + 0.114*b
+            const isInk  = lum < 150
+            const isSeal = r > 140 && (r - g) > 60
+            if (isInk || isSeal) {
+              res.push({
+                x: lx + x, y: ly + y,
+                r: isSeal ? C.shu[0] : C.ink[0],
+                g: isSeal ? C.shu[1] : C.ink[1],
+                b: isSeal ? C.shu[2] : C.ink[2],
+              })
+            }
+          }
+        }
+
+        resolve(res)
+      }
+      img.onerror = () => resolve([])
+      img.src = '/images/kanemaru_logo.png'
+    })
+  }
+
+  /* ─── Assign logo targets to particles ─────────────── */
+  function assignTargets () {
+    if (targets.length === 0) { tgtAssigned = true; return }
+
+    // Fisher-Yates shuffle
+    for (let i = targets.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0
+      const tmp = targets[i]; targets[i] = targets[j]; targets[j] = tmp
+    }
+
+    let ti = 0
+    for (let i = 0; i < parts.length && ti < targets.length; i++) {
+      const p = parts[i]
+      if (!p.alive || p.isSnowEx) continue
+      const t = targets[ti++]
+      p.tx = t.x; p.ty = t.y
+      p.tcR = t.r; p.tcG = t.g; p.tcB = t.b
+      p.delay = Math.random() * 0.6
+    }
+
+    tgtAssigned = true
+  }
+
+  /* ─── Reveal final frame ────────────────────────────── */
+  let revealed = false
+  function reveal () {
+    if (revealed) return
+    revealed = true
+    logo.style.opacity = '1'
+    setTimeout(() => { copy.style.opacity = '1' }, 350)
+    setTimeout(() => {
+      cv.style.transition = 'opacity 0.65s ease'
+      cv.style.opacity    = '0'
+    }, 500)
+  }
+
+  function finish () {
+    cancelAnimationFrame(rafId)
+    reveal()
+    setTimeout(() => {
+      ov.style.opacity = '0'
+      setTimeout(() => ov.remove(), 800)
+    }, 1100)
+  }
+
+  /* ─── Main loop ─────────────────────────────────────── */
+  let rafId = null
+  let t0    = null
+
+  function tick (ts) {
+    if (!t0) t0 = ts
+    const t = (ts - t0) / 1000
+
+    // Dark class toggle for skip button colors
+    if (t >= T.bgDkS && t < T.bgLtE) ov.classList.add('dark')
+    else ov.classList.remove('dark')
+
+    // Phase values (computed once per frame)
+    const fireP = ss(T.fiStart, T.fiEnd, t)
+    const snowP = ss(T.snStart, T.snEnd, t)
+
+    // Assign targets at build start
+    if (t >= T.buStart && !tgtAssigned) assignTargets()
+
+    spawnParticles(t)
+    updateSnowSurf(t)
+
+    for (let i = 0; i < parts.length; i++) updateP(parts[i], t, fireP, snowP)
+    for (let i = 0; i < snowEx.length; i++) updateP(snowEx[i], t, fireP, snowP)
+
+    // ── Draw ──
+    const bg = bgColor(t)
+    ctx.fillStyle = `rgb(${bg[0]},${bg[1]},${bg[2]})`
+    ctx.fillRect(0, 0, W, H)
+
+    updateFrameColors(t, fireP, snowP)
+    drawSeigaiha(t)
+    drawParticles(t, fireP, snowP)
+    drawSnowSurf(t)
+
+    if (t >= T.rvStart && !revealed) reveal()
+    if (t >= T.done) { finish(); return }
+
+    rafId = requestAnimationFrame(tick)
+  }
+
+  /* ─── Entry ─────────────────────────────────────────── */
+  async function init () {
+    // Sample logo in parallel with first animation frames
+    sampleLogo().then(res => { targets = res })
+    rafId = requestAnimationFrame(tick)
+  }
+
+  init()
+})()
+</script>
