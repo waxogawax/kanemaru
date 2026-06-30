@@ -22,7 +22,7 @@ const newsItems = [
     dateLabel: '2025.09.05',
     category: 'Instagram',
     title: 'あばれ祭の季節。宇出津の夏を、今年も迎えました。',
-    href: 'https://www.instagram.com/kanemaru.ltd/',
+    href: 'https://www.instagram.com/kanemaru.inc/',
     external: true,
   },
 ];
@@ -60,6 +60,25 @@ const dewoni = [
   {/* <HeroAnimation /> */}
 
   <!-- =====================
+       News Banner
+       ===================== -->
+  <div class="news-banner" id="news-banner">
+    <div class="news-banner__trigger" role="button" aria-expanded="false" aria-controls="news-banner-body" tabindex="0">
+      <span class="news-banner__dot" aria-hidden="true"></span>
+      <span class="news-banner__label">お知らせ</span>
+      <span class="news-banner__title">かき氷・たい焼きの販売について</span>
+      <svg class="news-banner__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="news-banner__body" id="news-banner-body" role="region" aria-label="バナー本文">
+      <div class="news-banner__body-inner">
+        みなさまから、かき氷・たい焼きのキッチンカー販売について多数のお問い合わせをいただいております。不定期開催につき、開催が決まり次第、インスタグラムおよびフェイスブックでお知らせいたします。ぜひフォロー・メッセージください。
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================
        Hero
        ===================== -->
   <section class="hero" aria-label="メインビジュアル">
@@ -84,9 +103,12 @@ const dewoni = [
        ===================== -->
   <section class="dewoni-section section" aria-label="事業構造">
     <div class="container">
-      <div class="section-header">
-        <span class="section-label">Business Structure</span>
-        <h2 class="section-title">能登でをに、暮らす。</h2>
+      <div class="section-header dewoni-section__header">
+        <img src="/images/logo-mark.svg" alt="" class="dewoni-section__logo" aria-hidden="true" />
+        <div>
+          <span class="section-label">Business Structure</span>
+          <h2 class="section-title">能登でをに、暮らす。</h2>
+        </div>
       </div>
       <p class="dewoni-section__lead">
         「で」「を」「に」という三つの助詞が、金丸商店の事業構造そのものです。
@@ -118,30 +140,75 @@ const dewoni = [
         <span class="section-label">News</span>
         <h2 class="section-title">お知らせ</h2>
       </div>
-      <ul class="news-list">
-        {newsItems.map(item => (
-          <li class="news-item fade-in">
+      <div class="news-layout">
+        <div class="news-layout__left">
+          <ul class="news-list">
+            {newsItems.map(item => (
+              <li class="news-item fade-in">
+                <a
+                  href={item.href}
+                  class="news-item__link"
+                  {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  <time class="news-item__date" datetime={item.date}>{item.dateLabel}</time>
+                  <span class="news-item__category">{item.category}</span>
+                  <span class="news-item__title">{item.title}</span>
+                  {item.external && (
+                    <svg class="news-item__ext" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div class="news-preview__more">
+            <a href="/news" class="link-arrow">お知らせ一覧</a>
+          </div>
+        </div>
+
+        <div class="news-layout__right">
+          <div class="insta-panel">
+            <div class="insta-panel__header">
+              <svg class="insta-panel__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+              </svg>
+              <div class="insta-panel__meta">
+                <span class="insta-panel__handle">@kanemaru.inc</span>
+                <span class="insta-panel__sub">最新投稿</span>
+              </div>
+            </div>
             <a
-              href={item.href}
-              class="news-item__link"
-              {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              href="https://www.instagram.com/kanemaru.inc/"
+              class="insta-panel__grid"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagramで最新投稿を見る"
             >
-              <time class="news-item__date" datetime={item.date}>{item.dateLabel}</time>
-              <span class="news-item__category">{item.category}</span>
-              <span class="news-item__title">{item.title}</span>
-              {item.external && (
-                <svg class="news-item__ext" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                  <polyline points="15 3 21 3 21 9"/>
-                  <line x1="10" y1="14" x2="21" y2="3"/>
-                </svg>
-              )}
+              <div class="insta-panel__post insta-panel__post--1"><span class="insta-panel__overlay">最新投稿を<br/>Instagramで見る</span></div>
+              <div class="insta-panel__post insta-panel__post--2"></div>
+              <div class="insta-panel__post insta-panel__post--3"></div>
+              <div class="insta-panel__post insta-panel__post--4"></div>
             </a>
-          </li>
-        ))}
-      </ul>
-      <div class="news-preview__more">
-        <a href="/news" class="link-arrow">お知らせ一覧</a>
+            <a
+              href="https://www.instagram.com/kanemaru.inc/"
+              class="insta-panel__cta"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+              </svg>
+              Instagramをフォローする
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -179,6 +246,99 @@ const dewoni = [
 </Layout>
 
 <style>
+  /* ─── News Banner ─── */
+
+  .news-banner {
+    position: sticky;
+    top: 72px;
+    z-index: 80;
+    background: rgba(43, 38, 34, 0.97);
+    border-bottom: 1px solid rgba(250, 248, 244, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+  }
+
+  .news-banner__trigger {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--side-pad);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .news-banner__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--shu);
+    flex-shrink: 0;
+    animation: dotPulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes dotPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
+
+  .news-banner__label {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--shu);
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: 1px solid rgba(192, 57, 27, 0.5);
+    padding: 2px 8px;
+  }
+
+  .news-banner__title {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: rgba(250, 248, 244, 0.85);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .news-banner__chevron {
+    color: rgba(250, 248, 244, 0.45);
+    flex-shrink: 0;
+    transition: transform var(--dur) var(--ease);
+  }
+
+  .news-banner__body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.38s var(--ease);
+  }
+
+  .news-banner:hover .news-banner__body,
+  .news-banner.is-open .news-banner__body {
+    max-height: 160px;
+  }
+
+  .news-banner:hover .news-banner__chevron,
+  .news-banner.is-open .news-banner__chevron {
+    transform: rotate(180deg);
+  }
+
+  .news-banner__body-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 14px var(--side-pad) 20px;
+    font-size: 13px;
+    line-height: 2;
+    letter-spacing: 0.06em;
+    color: rgba(250, 248, 244, 0.68);
+    border-top: 1px solid rgba(250, 248, 244, 0.08);
+  }
+
   /* ─── Hero ─── */
 
   .hero {
@@ -272,6 +432,19 @@ const dewoni = [
   }
 
   /* ─── でをにダイアグラム ─── */
+
+  .dewoni-section__header {
+    flex-direction: row;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .dewoni-section__logo {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    opacity: 0.85;
+  }
 
   .dewoni-section__lead {
     font-size: 15px;
@@ -367,6 +540,120 @@ const dewoni = [
   }
 
   /* ─── News preview ─── */
+
+  .news-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 56px;
+    align-items: start;
+  }
+
+  .news-layout__left {}
+
+  .news-layout__right {}
+
+  /* ─── Instagram panel ─── */
+
+  .insta-panel {
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .insta-panel__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .insta-panel__icon {
+    color: var(--gray);
+    flex-shrink: 0;
+  }
+
+  .insta-panel__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .insta-panel__handle {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+  }
+
+  .insta-panel__sub {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .insta-panel__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    aspect-ratio: 1;
+    background: var(--line);
+    gap: 2px;
+    position: relative;
+  }
+
+  .insta-panel__post {
+    background: color-mix(in srgb, var(--gray) 12%, var(--paper));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .insta-panel__post--1 { background: color-mix(in srgb, var(--de) 18%, var(--ink)); }
+  .insta-panel__post--2 { background: color-mix(in srgb, var(--wo) 18%, var(--ink)); }
+  .insta-panel__post--3 { background: color-mix(in srgb, var(--ni) 18%, var(--ink)); }
+  .insta-panel__post--4 { background: color-mix(in srgb, var(--shu) 18%, var(--ink)); }
+
+  .insta-panel__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    line-height: 1.9;
+    color: rgba(250, 248, 244, 0.75);
+    text-align: center;
+    padding: 8px;
+    background: rgba(43, 38, 34, 0.35);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  .insta-panel__grid:hover .insta-panel__overlay {
+    opacity: 1;
+  }
+
+  .insta-panel__cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 18px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--gray);
+    border-top: 1px solid var(--line);
+    transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+    background: var(--paper);
+  }
+
+  .insta-panel__cta:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--line) 30%, var(--paper));
+  }
 
   .news-list {
     border-top: 1px solid var(--line);
@@ -509,6 +796,27 @@ const dewoni = [
 
   /* ─── Responsive ─── */
 
+  @media (max-width: 960px) {
+    .news-layout {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    .news-layout__right {
+      max-width: 400px;
+    }
+
+    .dewoni-section__header {
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .dewoni-section__logo {
+      width: 64px;
+      height: 64px;
+    }
+  }
+
   @media (max-width: 768px) {
     .hero__inner {
       flex-direction: column-reverse;
@@ -541,6 +849,10 @@ const dewoni = [
 
     .members-teaser__faces {
       justify-content: center;
+    }
+
+    .news-banner__title {
+      display: none;
     }
   }
 
@@ -577,4 +889,13 @@ const dewoni = [
   );
 
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // News banner: toggle on click/tap for mobile
+  const banner = document.getElementById('news-banner');
+  const trigger = banner?.querySelector('.news-banner__trigger');
+  trigger?.addEventListener('click', () => {
+    banner?.classList.toggle('is-open');
+    const expanded = banner?.classList.contains('is-open');
+    trigger.setAttribute('aria-expanded', String(expanded));
+  });
 </script>

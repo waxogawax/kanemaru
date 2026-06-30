@@ -336,10 +336,15 @@ address {
 }
 
 .footer-logo img {
-  height: 32px;
+  height: auto;
   width: auto;
   filter: brightness(0) invert(1);
-  opacity: 0.9;
+  opacity: 0.82;
+}
+
+.footer-logo__mark {
+  width: 140px;
+  height: 140px;
 }
 
 .footer-address {
