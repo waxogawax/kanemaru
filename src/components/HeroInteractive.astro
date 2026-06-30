@@ -1,20 +1,31 @@
 ---
-// HeroInteractive — 積層型カラーウォッシュ・ヒーロー
-// 水（底から波打つ）→ 葉（水上に生い茂る）→ 火（葉の上ではぜる）→ 雪（上から覆い尽くす）
+// HeroInteractive — にじみ合う土地の変化
+// 水が滲み → 輪郭から葉が芽吹く → 葉の内に火が宿る → 雪が全体を包む
+// 低解像度キャンバス + CSS blur でにじみを表現
 ---
 
 <section class="hero-ia" id="hero-ia" aria-label="メインビジュアル">
   <canvas id="hero-ia-cv" class="hero-ia__canvas" aria-hidden="true"></canvas>
 
-  <div class="hero-ia__inner">
-    <div class="hero-ia__left">
-      <span class="hero-ia__label">Kanemaru Shoten, Ushitsu, Noto</span>
-      <p class="hero-ia__sub">氷水屋から、<br />暮らしの事業へ。</p>
-      <a href="/about" class="link-arrow hero-ia__cta">あり方を読む</a>
-    </div>
-    <h1 class="hero-ia__catch" aria-label="能登でをに、暮らす。">
-      能登でをに、暮らす。
-    </h1>
+  <!-- サブコピー（左寄り縦書き・時間差で出現） -->
+  <div class="hero-ia__sub-copy" aria-hidden="true">
+    <span class="hero-ia__sub-line" data-t="6">能登で。</span>
+    <span class="hero-ia__sub-line" data-t="8">能登を。</span>
+    <span class="hero-ia__sub-line" data-t="10">能登に。</span>
+    <span class="hero-ia__sub-line" data-t="13">暮らしの多様さを、</span>
+    <span class="hero-ia__sub-line" data-t="15">ひとつずつ事業にしていく。</span>
+  </div>
+
+  <!-- メインコピー（右寄り縦書き） -->
+  <h1 class="hero-ia__catch" aria-label="能登でをに、暮らす。">
+    能登でをに、暮らす。
+  </h1>
+
+  <!-- フッターコンテンツ（左下） -->
+  <div class="hero-ia__footer">
+    <span class="hero-ia__label">Kanemaru Shoten, Ushitsu, Noto</span>
+    <p class="hero-ia__desc">氷水屋から、暮らしの事業へ。</p>
+    <a href="/about" class="link-arrow hero-ia__cta">あり方を読む</a>
   </div>
 
   <div class="hero-ia__scroll" aria-hidden="true">
@@ -24,16 +35,16 @@
 </section>
 
 <style>
+  /* ── セクション ── */
   .hero-ia {
     position: relative;
     min-height: 100vh;
     background: #FFFDF8;
     overflow: hidden;
-    display: flex;
-    align-items: flex-end;
-    padding-bottom: clamp(64px, 8vh, 100px);
   }
 
+  /* ── キャンバス ──
+     意図的な低解像度 → CSS拡大 → blur でにじみを作る */
   .hero-ia__canvas {
     position: absolute;
     inset: 0;
@@ -42,63 +53,17 @@
     pointer-events: none;
     z-index: 0;
     display: block;
+    filter: blur(14px) saturate(1.12);
+    transform: scale(1.06);   /* blur端の白縁を隠す */
+    transform-origin: center;
   }
 
-  .hero-ia__inner {
-    position: relative;
-    z-index: 1;
-    max-width: var(--max-w);
-    margin: 0 auto;
-    padding: 0 var(--side-pad);
-    width: 100%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 40px;
-  }
-
-  .hero-ia__left {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    padding-bottom: 8px;
-  }
-
-  .hero-ia__label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: rgba(43, 38, 34, 0.38);
-    opacity: 0;
-    animation: hiUp 1s ease 1.6s forwards;
-  }
-
-  .hero-ia__sub {
-    font-family: var(--font-serif);
-    font-size: clamp(16px, 2vw, 24px);
-    font-weight: 500;
-    line-height: 2;
-    letter-spacing: 0.1em;
-    color: rgba(43, 38, 34, 0.65);
-    opacity: 0;
-    animation: hiUp 1s ease 2.0s forwards;
-  }
-
-  .hero-ia__cta {
-    color: rgba(43, 38, 34, 0.6);
-    width: fit-content;
-    opacity: 0;
-    animation: hiUp 1s ease 2.4s forwards;
-  }
-
-  @keyframes hiUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: none; }
-  }
-
+  /* ── メインコピー（右下・縦書き） ── */
   .hero-ia__catch {
+    position: absolute;
+    right: clamp(40px, 7vw, 100px);
+    bottom: clamp(80px, 14vh, 150px);
+    z-index: 2;
     writing-mode: vertical-rl;
     font-family: var(--font-serif);
     font-size: clamp(28px, 4.5vw, 60px);
@@ -106,7 +71,6 @@
     line-height: 1.4;
     letter-spacing: 0.18em;
     color: var(--ink);
-    flex-shrink: 0;
     text-shadow:
       0 0 18px rgba(255, 253, 248, 1),
       0 0 40px rgba(255, 253, 248, 1),
@@ -114,17 +78,92 @@
       0 0 130px rgba(255, 253, 248, 0.6);
   }
 
+  /* ── サブコピー（左中・縦書き列） ── */
+  .hero-ia__sub-copy {
+    position: absolute;
+    left: clamp(32px, 6vw, 80px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.6em;
+    pointer-events: none;
+  }
+
+  .hero-ia__sub-line {
+    display: block;
+    writing-mode: vertical-rl;
+    font-family: var(--font-serif);
+    font-size: clamp(11px, 1.35vw, 15px);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    line-height: 1.7;
+    color: rgba(43, 38, 34, 0.50);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 2.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 2.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .hero-ia__sub-line.is-shown {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── フッターコンテンツ（左下） ── */
+  .hero-ia__footer {
+    position: absolute;
+    bottom: clamp(40px, 7vh, 72px);
+    left: clamp(32px, var(--side-pad), 80px);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    opacity: 0;
+    animation: hiFade 1.2s ease 2s forwards;
+  }
+
+  .hero-ia__label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(43, 38, 34, 0.35);
+  }
+
+  .hero-ia__desc {
+    font-family: var(--font-serif);
+    font-size: clamp(15px, 1.8vw, 22px);
+    font-weight: 500;
+    line-height: 2;
+    letter-spacing: 0.1em;
+    color: rgba(43, 38, 34, 0.62);
+  }
+
+  .hero-ia__cta {
+    color: rgba(43, 38, 34, 0.58);
+    width: fit-content;
+  }
+
+  @keyframes hiFade {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── スクロールインジケーター ── */
   .hero-ia__scroll {
     position: absolute;
-    bottom: 28px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    color: rgba(43, 38, 34, 0.28);
+    color: rgba(43, 38, 34, 0.25);
     font-size: 10px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -133,7 +172,7 @@
   .hero-ia__scroll-line {
     width: 1px;
     height: 36px;
-    background: rgba(43, 38, 34, 0.2);
+    background: rgba(43, 38, 34, 0.18);
     transform-origin: top;
     animation: scrollLine 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
   }
@@ -144,23 +183,29 @@
     100% { transform: scaleY(1); opacity: 0; }
   }
 
+  /* ── モバイル ── */
   @media (max-width: 768px) {
-    .hero-ia__inner {
-      flex-direction: column-reverse;
-      align-items: flex-start;
-      padding-bottom: 0;
-    }
     .hero-ia__catch {
-      writing-mode: horizontal-tb;
-      font-size: clamp(28px, 8vw, 40px);
+      right: clamp(20px, 5vw, 48px);
+      bottom: clamp(100px, 18vh, 160px);
+      font-size: clamp(24px, 7vw, 40px);
+    }
+    .hero-ia__sub-copy {
+      left: clamp(16px, 4vw, 32px);
+      gap: 1.2em;
+    }
+    .hero-ia__sub-line {
+      font-size: clamp(10px, 2.8vw, 13px);
+    }
+    .hero-ia__footer {
+      left: clamp(16px, 4vw, 32px);
     }
   }
 
+  /* ── アクセシビリティ ── */
   @media (prefers-reduced-motion: reduce) {
-    .hero-ia__label,
-    .hero-ia__sub,
-    .hero-ia__cta { animation: none; opacity: 1; }
     .hero-ia__scroll-line { animation: none; }
+    .hero-ia__footer { animation: none; opacity: 1; }
   }
 </style>
 
@@ -168,226 +213,242 @@
 (function () {
   'use strict'
 
+  /* ── 初期化 ────────────────────────────── */
   var section = document.getElementById('hero-ia')
   var canvas  = document.getElementById('hero-ia-cv')
   if (!section || !canvas) return
   var ctx = canvas.getContext('2d')
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-  var DPR  = Math.min(window.devicePixelRatio || 1, 2)
-  var W = 0, H = 0
-  var cx, cy            // カーソル座標（論理ピクセル）
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduced) {
+    section.querySelectorAll('.hero-ia__sub-line').forEach(function (l) {
+      l.classList.add('is-shown')
+    })
+    return
+  }
+
+  /* ── 低解像度スケール ───────────────────
+     30%で描画 → CSSで100%に拡大 → filter:blurでにじむ */
+  var SCALE = 0.30
+  var LW = 0, LH = 0   // logical (CSS) size
+  var CW = 0, CH = 0   // canvas buffer size
+
+  /* ── 状態 ──────────────────────────────── */
+  var cx, cy             // カーソル位置（logical px）
   var startTime = null
   var isActive  = false
   var autoTimer = null
   var animId    = null
-  var STEP = 4          // パス構築のx刻み幅(px)
 
-  /* ── Resize ─────────────────────────────── */
-  function resize() {
-    W = section.clientWidth  || window.innerWidth
-    H = section.clientHeight || window.innerHeight
-    canvas.width  = Math.round(W * DPR)
-    canvas.height = Math.round(H * DPR)
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0)
-    if (cx === undefined) { cx = W * 0.5; cy = H * 0.5 }
+  /* ─────────────────────────────────────────
+     フィールド定義
+     type: 'w'=水, 'l'=葉, 'f'=火
+     bx,by: 正規化位置(0-1)
+     mr:    最大半径（CH の倍率）
+     maxA:  中心の最大透明度
+     sa:    発生時刻（s, 起動後）
+     gd:    成長時間（s）
+     trA:   痕跡として残る最低透明度
+  ───────────────────────────────────────── */
+  var DEFS = [
+    /* 水（4〜10秒）*/
+    ['w', 0.33, 0.52, 0.33, 0.42, 4.0,  6.5, 0.06],
+    ['w', 0.64, 0.47, 0.28, 0.36, 5.5,  6.0, 0.05],
+    ['w', 0.21, 0.61, 0.25, 0.32, 7.5,  5.5, 0.05],
+    ['w', 0.74, 0.58, 0.21, 0.28, 9.5,  6.0, 0.04],
+    /* 葉（10〜18秒）*/
+    ['l', 0.39, 0.50, 0.25, 0.38, 10.0, 5.5, 0.05],
+    ['l', 0.57, 0.44, 0.22, 0.34, 12.5, 5.0, 0.04],
+    ['l', 0.44, 0.56, 0.20, 0.30, 15.0, 5.0, 0.04],
+    ['l', 0.26, 0.59, 0.19, 0.26, 17.5, 4.5, 0.03],
+    /* 火（18〜26秒）*/
+    ['f', 0.43, 0.50, 0.15, 0.28, 18.0, 4.0, 0.03],
+    ['f', 0.59, 0.46, 0.13, 0.24, 21.0, 3.8, 0.03],
+    ['f', 0.35, 0.54, 0.11, 0.20, 24.0, 3.5, 0.02],
+  ]
+
+  /* 各フィールドの色 [R, G, B] */
+  var COL = {
+    w: [135, 190, 225],   /* 水: 朝霞の青 */
+    l: [86,  138, 88 ],   /* 葉: 苔・若葉 */
+    f: [196, 106, 40 ],   /* 火: 熾火の橙 */
   }
 
-  /* ── Easing ─────────────────────────────── */
+  var FIELDS = null
+  var SPARKS = []    /* クリック時の一時的な火花 */
+
+  /* ── ユーティリティ ─────────────────── */
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v }
-  function easeOut(t) {
-    t = clamp(t, 0, 1)
-    return 1 - Math.pow(1 - t, 2.8)
+  function easeOut(t) { t = clamp(t, 0, 1); return 1 - Math.pow(1 - t, 2.6) }
+  function rgba(col, a) {
+    return 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + (a < 0 ? 0 : a > 1 ? 1 : a).toFixed(3) + ')'
   }
 
-  /* ── 波形 Y 計算 ─────────────────────────
-     baseY を中心に複数のサイン波を重ねた境界線
-     カーソルX位置(cx/W)で位相をわずかに変化させ、
-     画面全体で動きを感じさせる（広域影響）       */
-  function wave(x, baseY, a1, f1, sp1, a2, f2, sp2, a3, f3, sp3, wt) {
-    var phase = cx !== undefined ? (cx / W) * 1.2 : 0
-    return baseY
-      + Math.sin(x * f1 + wt * sp1 + phase * 0.4) * a1
-      + Math.sin(x * f2 + wt * sp2 + phase * 0.25) * a2
-      + Math.sin(x * f3 + wt * sp3 + phase * 0.15) * a3
+  /* ── フィールド初期化 ────────────────── */
+  function initFields() {
+    FIELDS = DEFS.map(function (d) {
+      return {
+        type: d[0],
+        bx: d[1], by: d[2],
+        x: d[1] * CW, y: d[2] * CH,
+        r: d[3] * CH,
+        maxA: d[4],
+        sa: d[5], gd: d[6], trA: d[7],
+        wobX: Math.random() * 6.283,
+        wobY: Math.random() * 6.283,
+        wobSpd: 0.20 + Math.random() * 0.25,
+      }
+    })
+    SPARKS = []
   }
 
-  /* ── Draw ───────────────────────────────── */
+  function updateFieldCoords() {
+    if (!FIELDS) return
+    DEFS.forEach(function (d, i) {
+      FIELDS[i].x = d[1] * CW
+      FIELDS[i].y = d[2] * CH
+      FIELDS[i].r = d[3] * CH
+    })
+  }
+
+  /* ── リサイズ ───────────────────────── */
+  function resize() {
+    LW = section.clientWidth  || window.innerWidth
+    LH = section.clientHeight || window.innerHeight
+    CW = Math.round(LW * SCALE)
+    CH = Math.round(LH * SCALE)
+    canvas.width  = CW
+    canvas.height = CH
+    if (!FIELDS) initFields()
+    else updateFieldCoords()
+  }
+
+  /* ── 描画 ───────────────────────────── */
   function draw(now) {
     animId = requestAnimationFrame(draw)
-    ctx.clearRect(0, 0, W, H)
+
+    /* 白紙をベースに塗る */
+    ctx.fillStyle = '#FFFDF8'
+    ctx.fillRect(0, 0, CW, CH)
+
     if (!isActive || !startTime) return
 
     var elapsed = (now - startTime) / 1000
-    var wt      = elapsed
+    var wt      = now * 0.001              /* 連続的な波形時間 */
 
-    /* ── フェーズ進行（重なりながら展開）── */
-    var waterP = easeOut(clamp((elapsed - 0.0) / 3.2, 0, 1))
-    var leafP  = easeOut(clamp((elapsed - 2.0) / 2.8, 0, 1))
-    var fireP  = easeOut(clamp((elapsed - 4.0) / 2.6, 0, 1))
-    var snowP  = easeOut(clamp((elapsed - 6.2) / 4.2, 0, 1))
+    /* 雪のオーバーレイ進行（28〜45秒）*/
+    var snowP = easeOut(clamp((elapsed - 28) / 17, 0, 1))
 
-    /* カーソルY位置でレイヤーの高さを±9%調整（広域影響）*/
-    var cyN       = cy !== undefined ? cy / H : 0.5
-    var cInfluence = 1.0 + (0.5 - cyN) * 0.18
+    /* カーソル位置をキャンバス座標に変換 */
+    var lcx = (cx !== undefined ? cx : LW * 0.5) * SCALE
+    var lcy = (cy !== undefined ? cy : LH * 0.5) * SCALE
 
-    /* ── 各レイヤーのベースY（Y=0:天井, Y=H:床）
-       "下から上へ積み上がる" = ベースYが小さくなる方向に積む  */
+    /* ── フィールド描画 ────────────────── */
+    for (var i = 0; i < FIELDS.length; i++) {
+      var f = FIELDS[i]
+      if (elapsed < f.sa) continue
 
-    /* 水: 画面下から55%まで満ちる */
-    var wTopBase = H - H * 0.55 * waterP * cInfluence
+      var growT  = clamp((elapsed - f.sa) / f.gd, 0, 1)
+      var radius = f.r * easeOut(growT)
+      if (radius < 0.5) continue
 
-    /* 葉: 水の上から+28%分生い茂る（水と4%重なる）*/
-    var lBotBase  = wTopBase  + H * 0.04
-    var lTopBase  = lBotBase  - H * 0.28 * leafP
+      /* 透明度: 成長 → 雪に引き下げられ痕跡へ */
+      var peakA  = f.maxA * easeOut(growT)
+      var baseA  = f.trA + (peakA - f.trA) * (1 - snowP * 0.84)
 
-    /* 火: 葉の上から+22%分はぜる（葉と4%重なる）*/
-    var fBotBase  = lTopBase  + H * 0.04
-    var fTopBase  = fBotBase  - H * 0.22 * fireP
+      /* カーソル近傍でわずかに濃くなる（広域・柔らかな影響）*/
+      var dx    = f.x - lcx, dy = f.y - lcy
+      var dist  = Math.sqrt(dx * dx + dy * dy)
+      var boost = dist < radius * 2.2 ? (1 - dist / (radius * 2.2)) * 0.09 : 0
+      var alpha = Math.min(f.maxA, baseA + boost)
 
-    /* 雪: 天井から降り積もる（最終的に全体を覆う）*/
-    var snowBot    = H * snowP * 1.08
-    var snowWaveA  = 38 * (1 - snowP * 0.75)  // 積もるにつれ波が小さくなる
+      if (alpha < 0.003) continue
 
-    /* 終了状態: 雪が全画面を覆ったら単色で塗りつぶし */
-    if (snowP >= 0.99) {
-      ctx.fillStyle = '#FFFDF8'
-      ctx.fillRect(0, 0, W, H)
-      return
+      /* 有機的な揺れ（位置をわずかに振動）*/
+      var wx = f.x + Math.sin(wt * f.wobSpd + f.wobX) * radius * 0.10
+      var wy = f.y + Math.sin(wt * f.wobSpd * 0.73 + f.wobY) * radius * 0.08
+
+      var col = COL[f.type]
+      var g   = ctx.createRadialGradient(wx, wy, 0, wx, wy, radius)
+      g.addColorStop(0,    rgba(col, alpha))
+      g.addColorStop(0.38, rgba(col, alpha * 0.70))
+      g.addColorStop(0.72, rgba(col, alpha * 0.28))
+      g.addColorStop(1,    rgba(col, 0))
+      ctx.fillStyle = g
+      /* 描画矩形をキャンバス内にクランプ */
+      var rx = Math.max(0, wx - radius), ry = Math.max(0, wy - radius)
+      ctx.fillRect(rx, ry, Math.min(CW - rx, radius * 2), Math.min(CH - ry, radius * 2))
     }
 
-    /* ────────────────────────────────────────
-       レイヤー1: 水（底から波打って満ちる）
-       大きくゆっくりした波。能登の海。
-    ──────────────────────────────────────── */
-    if (waterP > 0.003) {
-      ctx.beginPath()
-      ctx.moveTo(0, H)
-      ctx.lineTo(W, H)
-
-      /* 右辺から水面へ */
-      ctx.lineTo(W, wave(W, wTopBase, 30, 0.0080, 0.68, 38, 0.0050, 0.42, 13, 0.0160, 1.10, wt))
-
-      /* 水面ライン: 右→左（大波+中波+小波）*/
-      var x = W - STEP
-      for (; x >= 0; x -= STEP) {
-        ctx.lineTo(x, wave(x, wTopBase, 30, 0.0080, 0.68, 38, 0.0050, 0.42, 13, 0.0160, 1.10, wt))
-      }
-      ctx.closePath()
-
-      var wg = ctx.createLinearGradient(0, wTopBase - 40, 0, H)
-      wg.addColorStop(0,    'rgba(138, 195, 228, 0.78)')
-      wg.addColorStop(0.35, 'rgba(100, 162, 210, 0.88)')
-      wg.addColorStop(1,    'rgba(62,  125, 188, 0.96)')
-      ctx.fillStyle = wg
-      ctx.fill()
-    }
-
-    /* ────────────────────────────────────────
-       レイヤー2: 葉（水の上に生い茂る）
-       中程度の波。里山の木立。
-    ──────────────────────────────────────── */
-    if (leafP > 0.003) {
-      ctx.beginPath()
-
-      /* 葉の天頂ライン: 左→右 */
-      ctx.moveTo(0, wave(0, lTopBase, 22, 0.0105, 0.52, 28, 0.0072, 0.85, 11, 0.0210, 1.42, wt))
-      var x = STEP
-      for (; x <= W; x += STEP) {
-        ctx.lineTo(x, wave(x, lTopBase, 22, 0.0105, 0.52, 28, 0.0072, 0.85, 11, 0.0210, 1.42, wt))
-      }
-
-      /* 右辺から葉の底辺へ */
-      ctx.lineTo(W, lBotBase)
-
-      /* 葉の底辺 = 水面ライン + オフセット（右→左）*/
-      var x = W - STEP
-      for (; x >= 0; x -= STEP) {
-        ctx.lineTo(x, wave(x, wTopBase, 30, 0.0080, 0.68, 38, 0.0050, 0.42, 13, 0.0160, 1.10, wt) + H * 0.04)
-      }
-      ctx.closePath()
-
-      var lg = ctx.createLinearGradient(0, lTopBase, 0, lBotBase)
-      lg.addColorStop(0,    'rgba(98,  162, 100, 0.82)')
-      lg.addColorStop(0.45, 'rgba(72,  132, 78,  0.90)')
-      lg.addColorStop(1,    'rgba(52,  104, 62,  0.95)')
-      ctx.fillStyle = lg
-      ctx.fill()
-    }
-
-    /* ────────────────────────────────────────
-       レイヤー3: 火（葉の上ではぜる）
-       速く細かい波。揺れる炎。
-    ──────────────────────────────────────── */
-    if (fireP > 0.003) {
-      ctx.beginPath()
-
-      /* 炎の頂点ライン: 左→右（速い + 不規則な波）*/
-      ctx.moveTo(0, wave(0, fTopBase, 20, 0.0195, 2.75, 25, 0.0128, 4.10, 10, 0.0340, 5.55, wt)
-                    + Math.sin(wt * 1.40) * 28)
-      var x = STEP
-      for (; x <= W; x += STEP) {
-        var fy = wave(x, fTopBase, 20, 0.0195, 2.75, 25, 0.0128, 4.10, 10, 0.0340, 5.55, wt)
-               + Math.sin(x * 0.0082 + wt * 1.40) * 28
-        ctx.lineTo(x, fy)
-      }
-
-      /* 右辺から火の底辺へ */
-      ctx.lineTo(W, fBotBase)
-
-      /* 火の底辺 = 葉の天頂ライン + オフセット（右→左）*/
-      var x = W - STEP
-      for (; x >= 0; x -= STEP) {
-        ctx.lineTo(x, wave(x, lTopBase, 22, 0.0105, 0.52, 28, 0.0072, 0.85, 11, 0.0210, 1.42, wt) + H * 0.04)
-      }
-      ctx.closePath()
-
-      var fg = ctx.createLinearGradient(0, fTopBase, 0, fBotBase)
-      fg.addColorStop(0,    'rgba(232, 70,  20,  0.74)')
-      fg.addColorStop(0.38, 'rgba(208, 108, 36,  0.82)')
-      fg.addColorStop(1,    'rgba(180, 138, 52,  0.88)')
-      ctx.fillStyle = fg
-      ctx.fill()
-    }
-
-    /* ────────────────────────────────────────
-       レイヤー4: 雪（天井から降り積もる）
-       ゆっくりした大きな波で全体を覆う
-    ──────────────────────────────────────── */
-    if (snowP > 0.003) {
-      ctx.beginPath()
-      ctx.moveTo(0, 0)
-      ctx.lineTo(W, 0)
-
-      /* 右辺から雪面へ */
-      ctx.lineTo(W, wave(W, snowBot, snowWaveA, 0.0062, 0.40, snowWaveA * 0.62, 0.0098, 0.68, snowWaveA * 0.32, 0.0165, 1.05, wt))
-
-      /* 雪面ライン: 右→左（ゆっくり大きな波）*/
-      var x = W - STEP
-      for (; x >= 0; x -= STEP) {
-        ctx.lineTo(x, wave(x, snowBot, snowWaveA, 0.0062, 0.40, snowWaveA * 0.62, 0.0098, 0.68, snowWaveA * 0.32, 0.0165, 1.05, wt))
-      }
-      ctx.closePath()
-
-      var sg = ctx.createLinearGradient(0, 0, 0, snowBot + snowWaveA)
-      sg.addColorStop(0,    'rgba(250, 248, 244, 0.98)')
-      sg.addColorStop(0.80, 'rgba(248, 246, 242, 0.95)')
-      sg.addColorStop(0.94, 'rgba(245, 243, 239, 0.55)')
-      sg.addColorStop(1.0,  'rgba(243, 241, 237, 0.00)')
+    /* ── 火花（クリック時のみ）────────── */
+    for (var i = SPARKS.length - 1; i >= 0; i--) {
+      var s   = SPARKS[i]
+      var age = elapsed - s.born
+      if (age > s.life) { SPARKS.splice(i, 1); continue }
+      var p   = age / s.life
+      var sa  = p < 0.25 ? (p / 0.25) * s.maxA : s.maxA * (1 - (p - 0.25) / 0.75)
+      var sr  = s.r * easeOut(Math.min(1, p / 0.35))
+      var sg  = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, sr)
+      sg.addColorStop(0, rgba(COL['f'], sa))
+      sg.addColorStop(1, rgba(COL['f'], 0))
       ctx.fillStyle = sg
-      ctx.fill()
+      ctx.fillRect(s.x - sr, s.y - sr, sr * 2, sr * 2)
+    }
+
+    /* ── 雪：全体を白く包む ─────────────
+       色を消すのでなく、白いヴェールで包む
+       痕跡（trA）はヴェールの下にごく薄く残る */
+    if (snowP > 0.003) {
+      ctx.fillStyle = 'rgba(250,248,244,' + (snowP * 0.66).toFixed(3) + ')'
+      ctx.fillRect(0, 0, CW, CH)
+    }
+
+    /* 45秒以降：静止 */
+    if (snowP >= 1.0 && elapsed > 48) {
+      cancelAnimationFrame(animId)
+      animId = null
     }
   }
 
-  /* ── Activate ───────────────────────────── */
+  /* ── コピー出現スケジューリング ────── */
+  var copyTimers = []
+  function scheduleCopies() {
+    var lines = section.querySelectorAll('.hero-ia__sub-line')
+    lines.forEach(function (el) {
+      var t = parseFloat(el.getAttribute('data-t') || '0')
+      copyTimers.push(setTimeout(function () {
+        el.classList.add('is-shown')
+      }, t * 1000))
+    })
+  }
+
+  /* ── 起動 ───────────────────────────── */
   function activate() {
     if (isActive) return
     isActive  = true
     startTime = performance.now()
     if (autoTimer) { clearTimeout(autoTimer); autoTimer = null }
+    scheduleCopies()
   }
 
-  /* ── Events ─────────────────────────────── */
+  /* ── 火花を追加 ─────────────────────── */
+  function addSpark(clientX, clientY) {
+    if (!isActive || !startTime) return
+    var r       = section.getBoundingClientRect()
+    var elapsed = (performance.now() - startTime) / 1000
+    for (var k = 0; k < 2; k++) {
+      SPARKS.push({
+        x:    (clientX - r.left + (Math.random() - 0.5) * LW * 0.04) * SCALE,
+        y:    (clientY - r.top  + (Math.random() - 0.5) * LH * 0.04) * SCALE,
+        r:    (0.055 + Math.random() * 0.040) * CH,
+        maxA: 0.20 + Math.random() * 0.08,
+        born: elapsed,
+        life: 1.2 + Math.random() * 0.8,
+      })
+    }
+  }
+
+  /* ── イベント ───────────────────────── */
   section.addEventListener('mousemove', function (e) {
     var r = section.getBoundingClientRect()
     cx = e.clientX - r.left
@@ -400,20 +461,23 @@
     cx = e.clientX - r.left
     cy = e.clientY - r.top
     activate()
+    addSpark(e.clientX, e.clientY)
   })
 
   section.addEventListener('touchstart', function (e) {
-    var r = section.getBoundingClientRect(), t = e.touches[0]
+    var r = section.getBoundingClientRect()
+    var t = e.touches[0]
     cx = t.clientX - r.left; cy = t.clientY - r.top
     activate()
   }, { passive: true })
 
   section.addEventListener('touchmove', function (e) {
-    var r = section.getBoundingClientRect(), t = e.touches[0]
+    var r = section.getBoundingClientRect()
+    var t = e.touches[0]
     cx = t.clientX - r.left; cy = t.clientY - r.top
   }, { passive: true })
 
-  /* ── Resize / Visibility ────────────────── */
+  /* ── リサイズ・可視性 ───────────────── */
   if (window.ResizeObserver) {
     new ResizeObserver(resize).observe(section)
   } else {
@@ -422,15 +486,18 @@
   resize()
 
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) cancelAnimationFrame(animId)
-    else animId = requestAnimationFrame(draw)
+    if (document.hidden) {
+      cancelAnimationFrame(animId); animId = null
+    } else if (!animId) {
+      animId = requestAnimationFrame(draw)
+    }
   })
 
-  /* ── Boot ───────────────────────────────── */
+  /* ── 起動 ───────────────────────────── */
   animId = requestAnimationFrame(draw)
 
   autoTimer = setTimeout(function () {
-    if (!isActive) { cx = W * 0.5; cy = H * 0.5; activate() }
+    if (!isActive) { cx = LW * 0.5; cy = LH * 0.5; activate() }
   }, 4000)
 
 })()
