@@ -1,7 +1,6 @@
 ---
-// HeroInteractive — 全画面カラートランジション・ヒーロー
-// 水 → 森 → 火 → 雪 → 生成り の順に背景が遷移
-// カーソル移動でトリガー、4秒後に自動開始
+// HeroInteractive — 積層型カラーウォッシュ・ヒーロー
+// 水（底から波打つ）→ 葉（水上に生い茂る）→ 火（葉の上ではぜる）→ 雪（上から覆い尽くす）
 ---
 
 <section class="hero-ia" id="hero-ia" aria-label="メインビジュアル">
@@ -25,7 +24,6 @@
 </section>
 
 <style>
-  /* ── Hero container ─────────────────────── */
   .hero-ia {
     position: relative;
     min-height: 100vh;
@@ -46,7 +44,6 @@
     display: block;
   }
 
-  /* ── Layout ─────────────────────────────── */
   .hero-ia__inner {
     position: relative;
     z-index: 1;
@@ -60,7 +57,6 @@
     gap: 40px;
   }
 
-  /* ── Left content ───────────────────────── */
   .hero-ia__left {
     flex: 1;
     display: flex;
@@ -76,7 +72,7 @@
     text-transform: uppercase;
     color: rgba(43, 38, 34, 0.38);
     opacity: 0;
-    animation: hiUp 1s ease 1.8s forwards;
+    animation: hiUp 1s ease 1.6s forwards;
   }
 
   .hero-ia__sub {
@@ -87,14 +83,14 @@
     letter-spacing: 0.1em;
     color: rgba(43, 38, 34, 0.65);
     opacity: 0;
-    animation: hiUp 1s ease 2.1s forwards;
+    animation: hiUp 1s ease 2.0s forwards;
   }
 
   .hero-ia__cta {
     color: rgba(43, 38, 34, 0.6);
     width: fit-content;
     opacity: 0;
-    animation: hiUp 1s ease 2.5s forwards;
+    animation: hiUp 1s ease 2.4s forwards;
   }
 
   @keyframes hiUp {
@@ -102,7 +98,6 @@
     to   { opacity: 1; transform: none; }
   }
 
-  /* ── Vertical h1 ────────────────────────── */
   .hero-ia__catch {
     writing-mode: vertical-rl;
     font-family: var(--font-serif);
@@ -112,14 +107,13 @@
     letter-spacing: 0.18em;
     color: var(--ink);
     flex-shrink: 0;
-    /* White halo ensures legibility over any background phase */
     text-shadow:
-      0 0 24px rgba(255, 253, 248, 1),
-      0 0 56px rgba(255, 253, 248, 0.9),
-      0 0 96px rgba(255, 253, 248, 0.6);
+      0 0 18px rgba(255, 253, 248, 1),
+      0 0 40px rgba(255, 253, 248, 1),
+      0 0 80px rgba(255, 253, 248, 0.85),
+      0 0 130px rgba(255, 253, 248, 0.6);
   }
 
-  /* ── Scroll indicator ───────────────────── */
   .hero-ia__scroll {
     position: absolute;
     bottom: 28px;
@@ -150,21 +144,18 @@
     100% { transform: scaleY(1); opacity: 0; }
   }
 
-  /* ── Mobile ─────────────────────────────── */
   @media (max-width: 768px) {
     .hero-ia__inner {
       flex-direction: column-reverse;
       align-items: flex-start;
       padding-bottom: 0;
     }
-
     .hero-ia__catch {
       writing-mode: horizontal-tb;
       font-size: clamp(28px, 8vw, 40px);
     }
   }
 
-  /* ── Reduced motion ─────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .hero-ia__label,
     .hero-ia__sub,
@@ -177,50 +168,20 @@
 (function () {
   'use strict'
 
-  /* ── Guards ─────────────────────────────── */
   var section = document.getElementById('hero-ia')
   var canvas  = document.getElementById('hero-ia-cv')
   if (!section || !canvas) return
   var ctx = canvas.getContext('2d')
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (reduced) return
-
-  var DPR = Math.min(window.devicePixelRatio || 1, 2)
+  var DPR  = Math.min(window.devicePixelRatio || 1, 2)
   var W = 0, H = 0
-  var cx, cy  // cursor position (logical coords)
-
-  /* ──────────────────────────────────────────
-     カラーフェーズ定義
-     [R, G, B, maxAlpha]
-     水 → 森 → 火 → 雪 → 生成り（透明に戻る）
-  ────────────────────────────────────────── */
-  var PHASES = [
-    [148, 196, 222, 0.82],  // 水 — 朝靄の青
-    [ 84, 144,  97, 0.80],  // 森 — 若葉の緑
-    [193,  97,  41, 0.76],  // 火 — 琥珀の橙
-    [211, 223, 232, 0.72],  // 雪 — 冷たい銀白
-    [250, 248, 244, 0.00],  // 生成り — 消えて落ち着く
-  ]
-
-  /* フェーズ持続時間（秒）*/
-  var DUR = [2.6, 2.6, 2.2, 2.0, 3.0]
-
-  /* 開始カラー（白紙） */
-  var ORIGIN = [250, 248, 244, 0.0]
-
-  /* ── State ──────────────────────────────── */
+  var cx, cy            // カーソル座標（論理ピクセル）
   var startTime = null
   var isActive  = false
   var autoTimer = null
   var animId    = null
-
-  /* ── Easing ─────────────────────────────── */
-  function ss(t) {
-    t = t < 0 ? 0 : t > 1 ? 1 : t
-    return t * t * (3 - 2 * t)
-  }
-  function lerp(a, b, t) { return a + (b - a) * t }
+  var STEP = 4          // パス構築のx刻み幅(px)
 
   /* ── Resize ─────────────────────────────── */
   function resize() {
@@ -229,71 +190,196 @@
     canvas.width  = Math.round(W * DPR)
     canvas.height = Math.round(H * DPR)
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0)
-    if (cx === undefined) { cx = W / 2; cy = H / 2 }
+    if (cx === undefined) { cx = W * 0.5; cy = H * 0.5 }
   }
 
-  /* ── Phase interpolation ────────────────── */
-  function getColor(now) {
-    if (!isActive || startTime === null) return null
-    var elapsed = (now - startTime) / 1000
-    var rem = elapsed
-    var ph  = 0
-    while (ph < PHASES.length - 1 && rem >= DUR[ph]) { rem -= DUR[ph]; ph++ }
-    if (ph >= PHASES.length) return null  // done
+  /* ── Easing ─────────────────────────────── */
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v }
+  function easeOut(t) {
+    t = clamp(t, 0, 1)
+    return 1 - Math.pow(1 - t, 2.8)
+  }
 
-    var t    = ss(rem / DUR[ph])
-    var from = ph === 0 ? ORIGIN : PHASES[ph - 1]
-    var to   = PHASES[ph]
-    return [
-      lerp(from[0], to[0], t) | 0,
-      lerp(from[1], to[1], t) | 0,
-      lerp(from[2], to[2], t) | 0,
-      lerp(from[3], to[3], t),
-    ]
+  /* ── 波形 Y 計算 ─────────────────────────
+     baseY を中心に複数のサイン波を重ねた境界線
+     カーソルX位置(cx/W)で位相をわずかに変化させ、
+     画面全体で動きを感じさせる（広域影響）       */
+  function wave(x, baseY, a1, f1, sp1, a2, f2, sp2, a3, f3, sp3, wt) {
+    var phase = cx !== undefined ? (cx / W) * 1.2 : 0
+    return baseY
+      + Math.sin(x * f1 + wt * sp1 + phase * 0.4) * a1
+      + Math.sin(x * f2 + wt * sp2 + phase * 0.25) * a2
+      + Math.sin(x * f3 + wt * sp3 + phase * 0.15) * a3
   }
 
   /* ── Draw ───────────────────────────────── */
   function draw(now) {
     animId = requestAnimationFrame(draw)
     ctx.clearRect(0, 0, W, H)
+    if (!isActive || !startTime) return
 
-    var col = getColor(now)
-    if (!col) return
+    var elapsed = (now - startTime) / 1000
+    var wt      = elapsed
 
-    var R = col[0], G = col[1], B = col[2], A = col[3]
-    if (A < 0.004) return
+    /* ── フェーズ進行（重なりながら展開）── */
+    var waterP = easeOut(clamp((elapsed - 0.0) / 3.2, 0, 1))
+    var leafP  = easeOut(clamp((elapsed - 2.0) / 2.8, 0, 1))
+    var fireP  = easeOut(clamp((elapsed - 4.0) / 2.6, 0, 1))
+    var snowP  = easeOut(clamp((elapsed - 6.2) / 4.2, 0, 1))
 
-    /* ─ レイヤー1: 全画面ベースカラー（均一塗り）─ */
-    ctx.fillStyle = 'rgba(' + R + ',' + G + ',' + B + ',' + (A * 0.68).toFixed(3) + ')'
-    ctx.fillRect(0, 0, W, H)
+    /* カーソルY位置でレイヤーの高さを±9%調整（広域影響）*/
+    var cyN       = cy !== undefined ? cy / H : 0.5
+    var cInfluence = 1.0 + (0.5 - cyN) * 0.18
 
-    /* ─ レイヤー2: カーソル中心・広域グラデーション ─
-       半径をスクリーン最大辺の 100% に設定し、
-       カーソルの影響が画面全体に及ぶようにする        */
-    var bigR = Math.max(W, H) * 1.05
-    var bR   = Math.min(255, R + 38) | 0
-    var bG   = Math.min(255, G + 38) | 0
-    var bB   = Math.min(255, B + 38) | 0
+    /* ── 各レイヤーのベースY（Y=0:天井, Y=H:床）
+       "下から上へ積み上がる" = ベースYが小さくなる方向に積む  */
 
-    var gBig = ctx.createRadialGradient(cx, cy, 0, cx, cy, bigR)
-    gBig.addColorStop(0.00, 'rgba(' + bR + ',' + bG + ',' + bB + ',' + (A * 0.55).toFixed(3) + ')')
-    gBig.addColorStop(0.45, 'rgba(' + R  + ',' + G  + ',' + B  + ',' + (A * 0.22).toFixed(3) + ')')
-    gBig.addColorStop(1.00, 'rgba(' + R  + ',' + G  + ',' + B  + ',0)')
-    ctx.fillStyle = gBig
-    ctx.fillRect(0, 0, W, H)
+    /* 水: 画面下から55%まで満ちる */
+    var wTopBase = H - H * 0.55 * waterP * cInfluence
 
-    /* ─ レイヤー3: カーソル付近のより鮮明なグロー ─
-       スクリーンの 45% の半径で、より濃い色が集まる  */
-    var medR = Math.min(W, H) * 0.45
-    var gMed = ctx.createRadialGradient(cx, cy, 0, cx, cy, medR)
-    gMed.addColorStop(0.0, 'rgba(' + bR + ',' + bG + ',' + bB + ',' + (A * 0.30).toFixed(3) + ')')
-    gMed.addColorStop(0.5, 'rgba(' + R  + ',' + G  + ',' + B  + ',' + (A * 0.08).toFixed(3) + ')')
-    gMed.addColorStop(1.0, 'rgba(' + R  + ',' + G  + ',' + B  + ',0)')
-    ctx.fillStyle = gMed
-    ctx.fillRect(0, 0, W, H)
+    /* 葉: 水の上から+28%分生い茂る（水と4%重なる）*/
+    var lBotBase  = wTopBase  + H * 0.04
+    var lTopBase  = lBotBase  - H * 0.28 * leafP
+
+    /* 火: 葉の上から+22%分はぜる（葉と4%重なる）*/
+    var fBotBase  = lTopBase  + H * 0.04
+    var fTopBase  = fBotBase  - H * 0.22 * fireP
+
+    /* 雪: 天井から降り積もる（最終的に全体を覆う）*/
+    var snowBot    = H * snowP * 1.08
+    var snowWaveA  = 38 * (1 - snowP * 0.75)  // 積もるにつれ波が小さくなる
+
+    /* 終了状態: 雪が全画面を覆ったら単色で塗りつぶし */
+    if (snowP >= 0.99) {
+      ctx.fillStyle = '#FFFDF8'
+      ctx.fillRect(0, 0, W, H)
+      return
+    }
+
+    /* ────────────────────────────────────────
+       レイヤー1: 水（底から波打って満ちる）
+       大きくゆっくりした波。能登の海。
+    ──────────────────────────────────────── */
+    if (waterP > 0.003) {
+      ctx.beginPath()
+      ctx.moveTo(0, H)
+      ctx.lineTo(W, H)
+
+      /* 右辺から水面へ */
+      ctx.lineTo(W, wave(W, wTopBase, 30, 0.0080, 0.68, 38, 0.0050, 0.42, 13, 0.0160, 1.10, wt))
+
+      /* 水面ライン: 右→左（大波+中波+小波）*/
+      var x = W - STEP
+      for (; x >= 0; x -= STEP) {
+        ctx.lineTo(x, wave(x, wTopBase, 30, 0.0080, 0.68, 38, 0.0050, 0.42, 13, 0.0160, 1.10, wt))
+      }
+      ctx.closePath()
+
+      var wg = ctx.createLinearGradient(0, wTopBase - 40, 0, H)
+      wg.addColorStop(0,    'rgba(138, 195, 228, 0.78)')
+      wg.addColorStop(0.35, 'rgba(100, 162, 210, 0.88)')
+      wg.addColorStop(1,    'rgba(62,  125, 188, 0.96)')
+      ctx.fillStyle = wg
+      ctx.fill()
+    }
+
+    /* ────────────────────────────────────────
+       レイヤー2: 葉（水の上に生い茂る）
+       中程度の波。里山の木立。
+    ──────────────────────────────────────── */
+    if (leafP > 0.003) {
+      ctx.beginPath()
+
+      /* 葉の天頂ライン: 左→右 */
+      ctx.moveTo(0, wave(0, lTopBase, 22, 0.0105, 0.52, 28, 0.0072, 0.85, 11, 0.0210, 1.42, wt))
+      var x = STEP
+      for (; x <= W; x += STEP) {
+        ctx.lineTo(x, wave(x, lTopBase, 22, 0.0105, 0.52, 28, 0.0072, 0.85, 11, 0.0210, 1.42, wt))
+      }
+
+      /* 右辺から葉の底辺へ */
+      ctx.lineTo(W, lBotBase)
+
+      /* 葉の底辺 = 水面ライン + オフセット（右→左）*/
+      var x = W - STEP
+      for (; x >= 0; x -= STEP) {
+        ctx.lineTo(x, wave(x, wTopBase, 30, 0.0080, 0.68, 38, 0.0050, 0.42, 13, 0.0160, 1.10, wt) + H * 0.04)
+      }
+      ctx.closePath()
+
+      var lg = ctx.createLinearGradient(0, lTopBase, 0, lBotBase)
+      lg.addColorStop(0,    'rgba(98,  162, 100, 0.82)')
+      lg.addColorStop(0.45, 'rgba(72,  132, 78,  0.90)')
+      lg.addColorStop(1,    'rgba(52,  104, 62,  0.95)')
+      ctx.fillStyle = lg
+      ctx.fill()
+    }
+
+    /* ────────────────────────────────────────
+       レイヤー3: 火（葉の上ではぜる）
+       速く細かい波。揺れる炎。
+    ──────────────────────────────────────── */
+    if (fireP > 0.003) {
+      ctx.beginPath()
+
+      /* 炎の頂点ライン: 左→右（速い + 不規則な波）*/
+      ctx.moveTo(0, wave(0, fTopBase, 20, 0.0195, 2.75, 25, 0.0128, 4.10, 10, 0.0340, 5.55, wt)
+                    + Math.sin(wt * 1.40) * 28)
+      var x = STEP
+      for (; x <= W; x += STEP) {
+        var fy = wave(x, fTopBase, 20, 0.0195, 2.75, 25, 0.0128, 4.10, 10, 0.0340, 5.55, wt)
+               + Math.sin(x * 0.0082 + wt * 1.40) * 28
+        ctx.lineTo(x, fy)
+      }
+
+      /* 右辺から火の底辺へ */
+      ctx.lineTo(W, fBotBase)
+
+      /* 火の底辺 = 葉の天頂ライン + オフセット（右→左）*/
+      var x = W - STEP
+      for (; x >= 0; x -= STEP) {
+        ctx.lineTo(x, wave(x, lTopBase, 22, 0.0105, 0.52, 28, 0.0072, 0.85, 11, 0.0210, 1.42, wt) + H * 0.04)
+      }
+      ctx.closePath()
+
+      var fg = ctx.createLinearGradient(0, fTopBase, 0, fBotBase)
+      fg.addColorStop(0,    'rgba(232, 70,  20,  0.74)')
+      fg.addColorStop(0.38, 'rgba(208, 108, 36,  0.82)')
+      fg.addColorStop(1,    'rgba(180, 138, 52,  0.88)')
+      ctx.fillStyle = fg
+      ctx.fill()
+    }
+
+    /* ────────────────────────────────────────
+       レイヤー4: 雪（天井から降り積もる）
+       ゆっくりした大きな波で全体を覆う
+    ──────────────────────────────────────── */
+    if (snowP > 0.003) {
+      ctx.beginPath()
+      ctx.moveTo(0, 0)
+      ctx.lineTo(W, 0)
+
+      /* 右辺から雪面へ */
+      ctx.lineTo(W, wave(W, snowBot, snowWaveA, 0.0062, 0.40, snowWaveA * 0.62, 0.0098, 0.68, snowWaveA * 0.32, 0.0165, 1.05, wt))
+
+      /* 雪面ライン: 右→左（ゆっくり大きな波）*/
+      var x = W - STEP
+      for (; x >= 0; x -= STEP) {
+        ctx.lineTo(x, wave(x, snowBot, snowWaveA, 0.0062, 0.40, snowWaveA * 0.62, 0.0098, 0.68, snowWaveA * 0.32, 0.0165, 1.05, wt))
+      }
+      ctx.closePath()
+
+      var sg = ctx.createLinearGradient(0, 0, 0, snowBot + snowWaveA)
+      sg.addColorStop(0,    'rgba(250, 248, 244, 0.98)')
+      sg.addColorStop(0.80, 'rgba(248, 246, 242, 0.95)')
+      sg.addColorStop(0.94, 'rgba(245, 243, 239, 0.55)')
+      sg.addColorStop(1.0,  'rgba(243, 241, 237, 0.00)')
+      ctx.fillStyle = sg
+      ctx.fill()
+    }
   }
 
-  /* ── Activate sequence ──────────────────── */
+  /* ── Activate ───────────────────────────── */
   function activate() {
     if (isActive) return
     isActive  = true
@@ -309,7 +395,6 @@
     activate()
   })
 
-  /* クリックでもトリガー */
   section.addEventListener('click', function (e) {
     var r = section.getBoundingClientRect()
     cx = e.clientX - r.left
@@ -317,7 +402,6 @@
     activate()
   })
 
-  /* タッチ対応 */
   section.addEventListener('touchstart', function (e) {
     var r = section.getBoundingClientRect(), t = e.touches[0]
     cx = t.clientX - r.left; cy = t.clientY - r.top
@@ -329,7 +413,7 @@
     cx = t.clientX - r.left; cy = t.clientY - r.top
   }, { passive: true })
 
-  /* ── Resize ─────────────────────────────── */
+  /* ── Resize / Visibility ────────────────── */
   if (window.ResizeObserver) {
     new ResizeObserver(resize).observe(section)
   } else {
@@ -337,7 +421,6 @@
   }
   resize()
 
-  /* ── Visibility pause ───────────────────── */
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) cancelAnimationFrame(animId)
     else animId = requestAnimationFrame(draw)
@@ -346,12 +429,8 @@
   /* ── Boot ───────────────────────────────── */
   animId = requestAnimationFrame(draw)
 
-  /* 4秒後に自動開始（カーソル未操作の場合）*/
   autoTimer = setTimeout(function () {
-    if (!isActive) {
-      cx = W / 2; cy = H / 2
-      activate()
-    }
+    if (!isActive) { cx = W * 0.5; cy = H * 0.5; activate() }
   }, 4000)
 
 })()
