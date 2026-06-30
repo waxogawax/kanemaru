@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 // import HeroAnimation from '../components/HeroAnimation.astro';
+import HeroInteractive from '../components/HeroInteractive.astro';
 
 const newsItems = [
   {
@@ -79,24 +80,9 @@ const dewoni = [
   </div>
 
   <!-- =====================
-       Hero
+       Hero (interactive canvas)
        ===================== -->
-  <section class="hero" aria-label="メインビジュアル">
-    <div class="hero__inner">
-      <div class="hero__left">
-        <span class="hero__label">Kanemaru Shoten, Ushitsu, Noto</span>
-        <p class="hero__sub">氷水屋から、<br />暮らしの事業へ。</p>
-        <a href="/about" class="link-arrow hero__cta">あり方を読む</a>
-      </div>
-      <h1 class="hero__catch" aria-label="能登でをに、暮らす。">
-        能登でをに、暮らす。
-      </h1>
-    </div>
-    <div class="hero__scroll" aria-hidden="true">
-      <div class="hero__scroll-line"></div>
-      <span>Scroll</span>
-    </div>
-  </section>
+  <HeroInteractive />
 
   <!-- =====================
        でをにダイアグラム
@@ -335,98 +321,6 @@ const dewoni = [
     letter-spacing: 0.06em;
     color: rgba(250, 248, 244, 0.68);
     border-top: 1px solid rgba(250, 248, 244, 0.08);
-  }
-
-  /* ─── Hero ─── */
-
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: flex-end;
-    padding-bottom: clamp(64px, 8vh, 100px);
-    background-color: var(--ink);
-  }
-
-  .hero__inner {
-    max-width: var(--max-w);
-    margin: 0 auto;
-    padding: 0 var(--side-pad);
-    width: 100%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 40px;
-  }
-
-  .hero__left {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    padding-bottom: 8px;
-  }
-
-  .hero__label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: rgba(250, 248, 244, 0.38);
-  }
-
-  .hero__sub {
-    font-family: var(--font-serif);
-    font-size: clamp(18px, 2.2vw, 26px);
-    font-weight: 500;
-    line-height: 2;
-    letter-spacing: 0.1em;
-    color: rgba(250, 248, 244, 0.72);
-  }
-
-  .hero__cta {
-    color: rgba(250, 248, 244, 0.72);
-    width: fit-content;
-  }
-
-  .hero__catch {
-    writing-mode: vertical-rl;
-    font-family: var(--font-serif);
-    font-size: clamp(28px, 4.5vw, 60px);
-    font-weight: 500;
-    line-height: 1.4;
-    letter-spacing: 0.18em;
-    color: var(--paper);
-    flex-shrink: 0;
-  }
-
-  .hero__scroll {
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    color: rgba(250, 248, 244, 0.35);
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-  }
-
-  .hero__scroll-line {
-    width: 1px;
-    height: 36px;
-    background: rgba(250, 248, 244, 0.3);
-    animation: scrollLine 2.2s var(--ease) infinite;
-    transform-origin: top;
-  }
-
-  @keyframes scrollLine {
-    0%   { transform: scaleY(0); opacity: 0; }
-    40%  { transform: scaleY(1); opacity: 1; }
-    100% { transform: scaleY(1); opacity: 0; }
   }
 
   /* ─── でをにダイアグラム ─── */
@@ -775,23 +669,12 @@ const dewoni = [
     }
 
     .dewoni-section__logo {
-      width: 64px;
-      height: 64px;
+      width: 160px;
+      height: auto;
     }
   }
 
   @media (max-width: 768px) {
-    .hero__inner {
-      flex-direction: column-reverse;
-      align-items: flex-start;
-      padding-bottom: 0;
-    }
-
-    .hero__catch {
-      writing-mode: horizontal-tb;
-      font-size: clamp(28px, 8vw, 40px);
-    }
-
     .dewoni {
       grid-template-columns: 1fr;
     }
