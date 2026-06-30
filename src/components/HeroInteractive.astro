@@ -1,15 +1,21 @@
 ---
-// HeroInteractive — Canvas particle hero
-// Water · Ripple · Leaf · Spark · Snow
+// HeroInteractive — 全画面カラートランジション・ヒーロー
+// 水 → 森 → 火 → 雪 → 生成り の順に背景が遷移
+// カーソル移動でトリガー、4秒後に自動開始
 ---
 
 <section class="hero-ia" id="hero-ia" aria-label="メインビジュアル">
   <canvas id="hero-ia-cv" class="hero-ia__canvas" aria-hidden="true"></canvas>
 
-  <div class="hero-ia__content">
-    <span class="hero-ia__label">Kanemaru Shoten, Ushitsu, Noto</span>
-    <h1 class="hero-ia__title">能登でをに、暮らす。</h1>
-    <a href="/about" class="link-arrow hero-ia__cta">あり方を読む</a>
+  <div class="hero-ia__inner">
+    <div class="hero-ia__left">
+      <span class="hero-ia__label">Kanemaru Shoten, Ushitsu, Noto</span>
+      <p class="hero-ia__sub">氷水屋から、<br />暮らしの事業へ。</p>
+      <a href="/about" class="link-arrow hero-ia__cta">あり方を読む</a>
+    </div>
+    <h1 class="hero-ia__catch" aria-label="能登でをに、暮らす。">
+      能登でをに、暮らす。
+    </h1>
   </div>
 
   <div class="hero-ia__scroll" aria-hidden="true">
@@ -19,14 +25,15 @@
 </section>
 
 <style>
+  /* ── Hero container ─────────────────────── */
   .hero-ia {
     position: relative;
     min-height: 100vh;
     background: #FFFDF8;
     overflow: hidden;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: clamp(64px, 8vh, 100px);
   }
 
   .hero-ia__canvas {
@@ -35,72 +42,95 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 1;
+    z-index: 0;
     display: block;
   }
 
-  .hero-ia__content {
+  /* ── Layout ─────────────────────────────── */
+  .hero-ia__inner {
     position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 28px;
-    text-align: center;
+    z-index: 1;
+    max-width: var(--max-w);
+    margin: 0 auto;
     padding: 0 var(--side-pad);
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
   }
 
-  /* White halo keeps text legible over particles */
-  .hero-ia__title {
-    text-shadow:
-      0 0 32px rgba(255, 253, 248, 1),
-      0 0 64px rgba(255, 253, 248, 0.9),
-      0 0 96px rgba(255, 253, 248, 0.7);
+  /* ── Left content ───────────────────────── */
+  .hero-ia__left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding-bottom: 8px;
   }
 
   .hero-ia__label {
-    font-family: var(--font-sans);
+    display: block;
     font-size: 11px;
-    letter-spacing: 0.30em;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: rgba(43, 38, 34, 0.36);
+    color: rgba(43, 38, 34, 0.38);
     opacity: 0;
-    animation: hiUp 1s ease 0.3s forwards;
+    animation: hiUp 1s ease 1.8s forwards;
   }
 
-  .hero-ia__title {
+  .hero-ia__sub {
     font-family: var(--font-serif);
-    font-size: clamp(2rem, 5.5vw, 4.8rem);
+    font-size: clamp(16px, 2vw, 24px);
     font-weight: 500;
-    letter-spacing: 0.14em;
-    line-height: 1.45;
-    color: #2B2622;
+    line-height: 2;
+    letter-spacing: 0.1em;
+    color: rgba(43, 38, 34, 0.65);
     opacity: 0;
-    animation: hiUp 1.5s ease 0.6s forwards;
+    animation: hiUp 1s ease 2.1s forwards;
   }
 
   .hero-ia__cta {
-    color: rgba(43, 38, 34, 0.58);
+    color: rgba(43, 38, 34, 0.6);
+    width: fit-content;
     opacity: 0;
-    animation: hiUp 1s ease 1.1s forwards;
+    animation: hiUp 1s ease 2.5s forwards;
   }
 
   @keyframes hiUp {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: none; }
   }
 
+  /* ── Vertical h1 ────────────────────────── */
+  .hero-ia__catch {
+    writing-mode: vertical-rl;
+    font-family: var(--font-serif);
+    font-size: clamp(28px, 4.5vw, 60px);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+    flex-shrink: 0;
+    /* White halo ensures legibility over any background phase */
+    text-shadow:
+      0 0 24px rgba(255, 253, 248, 1),
+      0 0 56px rgba(255, 253, 248, 0.9),
+      0 0 96px rgba(255, 253, 248, 0.6);
+  }
+
+  /* ── Scroll indicator ───────────────────── */
   .hero-ia__scroll {
     position: absolute;
     bottom: 28px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 2;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    color: rgba(43, 38, 34, 0.25);
+    color: rgba(43, 38, 34, 0.28);
     font-size: 10px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -109,7 +139,7 @@
   .hero-ia__scroll-line {
     width: 1px;
     height: 36px;
-    background: rgba(43, 38, 34, 0.17);
+    background: rgba(43, 38, 34, 0.2);
     transform-origin: top;
     animation: scrollLine 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
   }
@@ -120,9 +150,24 @@
     100% { transform: scaleY(1); opacity: 0; }
   }
 
+  /* ── Mobile ─────────────────────────────── */
+  @media (max-width: 768px) {
+    .hero-ia__inner {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      padding-bottom: 0;
+    }
+
+    .hero-ia__catch {
+      writing-mode: horizontal-tb;
+      font-size: clamp(28px, 8vw, 40px);
+    }
+  }
+
+  /* ── Reduced motion ─────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .hero-ia__label,
-    .hero-ia__title,
+    .hero-ia__sub,
     .hero-ia__cta { animation: none; opacity: 1; }
     .hero-ia__scroll-line { animation: none; }
   }
@@ -132,297 +177,159 @@
 (function () {
   'use strict'
 
-  /* ── Setup ──────────────────────────── */
+  /* ── Guards ─────────────────────────────── */
   var section = document.getElementById('hero-ia')
   var canvas  = document.getElementById('hero-ia-cv')
   if (!section || !canvas) return
-
   var ctx = canvas.getContext('2d')
+
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (reduced) return
 
-  var isMob   = ('ontouchstart' in window) || window.innerWidth < 768
-  var MAX_P   = isMob ? 100 : 260
-  var hour    = new Date().getHours()
-  var month   = new Date().getMonth()
-  var evening = hour >= 17 || hour < 5          // spark threshold lower
-  var winter  = month === 11 || month <= 1      // snow more frequent
-  var SNOW_INT = winter ? (isMob ? 600 : 300) : (isMob ? 900 : 450)
-  var DPR     = Math.min(window.devicePixelRatio || 1, 2)
-
+  var DPR = Math.min(window.devicePixelRatio || 1, 2)
   var W = 0, H = 0
+  var cx, cy  // cursor position (logical coords)
 
+  /* ──────────────────────────────────────────
+     カラーフェーズ定義
+     [R, G, B, maxAlpha]
+     水 → 森 → 火 → 雪 → 生成り（透明に戻る）
+  ────────────────────────────────────────── */
+  var PHASES = [
+    [148, 196, 222, 0.82],  // 水 — 朝靄の青
+    [ 84, 144,  97, 0.80],  // 森 — 若葉の緑
+    [193,  97,  41, 0.76],  // 火 — 琥珀の橙
+    [211, 223, 232, 0.72],  // 雪 — 冷たい銀白
+    [250, 248, 244, 0.00],  // 生成り — 消えて落ち着く
+  ]
+
+  /* フェーズ持続時間（秒）*/
+  var DUR = [2.6, 2.6, 2.2, 2.0, 3.0]
+
+  /* 開始カラー（白紙） */
+  var ORIGIN = [250, 248, 244, 0.0]
+
+  /* ── State ──────────────────────────────── */
+  var startTime = null
+  var isActive  = false
+  var autoTimer = null
+  var animId    = null
+
+  /* ── Easing ─────────────────────────────── */
+  function ss(t) {
+    t = t < 0 ? 0 : t > 1 ? 1 : t
+    return t * t * (3 - 2 * t)
+  }
+  function lerp(a, b, t) { return a + (b - a) * t }
+
+  /* ── Resize ─────────────────────────────── */
   function resize() {
-    W = section.clientWidth || window.innerWidth
+    W = section.clientWidth  || window.innerWidth
     H = section.clientHeight || window.innerHeight
     canvas.width  = Math.round(W * DPR)
     canvas.height = Math.round(H * DPR)
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0)
-    if (!st.active) { st.px = W / 2; st.py = H / 2 }
+    if (cx === undefined) { cx = W / 2; cy = H / 2 }
   }
 
-  /* ── State ──────────────────────────── */
-  var st = { active: false, snow: false, px: 0, py: 0, prevPx: 0, prevPy: 0, speed: 0 }
+  /* ── Phase interpolation ────────────────── */
+  function getColor(now) {
+    if (!isActive || startTime === null) return null
+    var elapsed = (now - startTime) / 1000
+    var rem = elapsed
+    var ph  = 0
+    while (ph < PHASES.length - 1 && rem >= DUR[ph]) { rem -= DUR[ph]; ph++ }
+    if (ph >= PHASES.length) return null  // done
 
-  /* ── Particles ───────────────────────── */
-  var parts = []
-  var lastMove  = 0, lastSnow  = 0, lastSpark = 0
-  var lastLeaf  = 0, lastIdle  = 0
-  var autoTimer = null, animId = null
-
-  /* ─ Water drop ─ */
-  function Wd(x, y, spd) {
-    spd = spd || 0
-    var ang = Math.random() * 6.283
-    var vel = (0.9 + Math.random() * 1.9) * (1 + spd * 0.013)
-    this.x = x; this.y = y
-    this.vx = Math.cos(ang) * vel
-    this.vy = Math.sin(ang) * vel * 0.62 - Math.random() * 1.1
-    this.r  = 1.1 + Math.random() * 2.1
-    this.a  = 0.46 + Math.random() * 0.34
-    this.da = 0.013 + Math.random() * 0.015
-    this.alive = true
-    var h = (196 + Math.random() * 24) | 0
-    var s = (12 + Math.random() * 38) | 0
-    var l = (74 + Math.random() * 20) | 0
-    this.c = 'hsl(' + h + ',' + s + '%,' + l + '%)'
-  }
-  Wd.prototype.update = function() {
-    this.x += this.vx; this.y += this.vy
-    this.vy += 0.042; this.vx *= 0.972
-    this.a  -= this.da
-    if (this.a <= 0) this.alive = false
-  }
-  Wd.prototype.draw = function(c) {
-    c.save(); c.globalAlpha = Math.max(0, this.a)
-    c.fillStyle = this.c; c.beginPath(); c.arc(this.x, this.y, this.r, 0, 6.283); c.fill()
-    c.restore()
+    var t    = ss(rem / DUR[ph])
+    var from = ph === 0 ? ORIGIN : PHASES[ph - 1]
+    var to   = PHASES[ph]
+    return [
+      lerp(from[0], to[0], t) | 0,
+      lerp(from[1], to[1], t) | 0,
+      lerp(from[2], to[2], t) | 0,
+      lerp(from[3], to[3], t),
+    ]
   }
 
-  /* ─ Ripple ─ */
-  function Rp(x, y) {
-    this.x = x; this.y = y; this.r = 3; this.a = 0.3
-    this.maxR = 44 + Math.random() * 58
-    this.ry   = 0.26 + Math.random() * 0.16   // horizontal ellipse
-    this.alive = true
-  }
-  Rp.prototype.update = function() {
-    this.r += 1 + this.r * 0.024
-    this.a  = 0.30 * (1 - this.r / this.maxR)
-    if (this.r >= this.maxR) this.alive = false
-  }
-  Rp.prototype.draw = function(c) {
-    if (this.a < 0.004) return
-    c.save(); c.globalAlpha = this.a
-    c.strokeStyle = 'rgba(175,208,228,1)'; c.lineWidth = 0.85
-    c.scale(1, this.ry)
-    c.beginPath(); c.arc(this.x, this.y / this.ry, this.r, 0, 6.283); c.stroke()
-    c.restore()
-  }
-
-  /* ─ Leaf ─ */
-  var GREENS = [[100,138,70],[82,118,60],[124,154,88],[90,128,68],[108,142,76],[70,112,54]]
-  function Lf(x, y) {
-    this.x = x; this.y = y
-    this.vx = (Math.random() - 0.5) * 0.55
-    this.vy = -0.18 - Math.random() * 0.45
-    this.rot = Math.random() * 6.283
-    this.dr  = (Math.random() - 0.5) * 0.037
-    this.s   = 4 + Math.random() * 7.5
-    this.a   = 0; this.maxA = 0.27 + Math.random() * 0.22
-    this.fadein = true; this.da = 0.0024 + Math.random() * 0.0034
-    this.sw  = Math.random() * 6.283; this.sws = 0.011 + Math.random() * 0.013
-    this.alive = true
-    this.rgb = GREENS[Math.floor(Math.random() * GREENS.length)]
-  }
-  Lf.prototype.update = function() {
-    this.sw += this.sws
-    this.x  += this.vx + Math.sin(this.sw) * 0.22
-    this.y  += this.vy; this.vy += 0.0025
-    this.rot += this.dr
-    if (this.fadein) { this.a += 0.015; if (this.a >= this.maxA) this.fadein = false }
-    else               this.a -= this.da
-    if (this.a <= 0) this.alive = false
-  }
-  Lf.prototype.draw = function(c) {
-    if (this.a < 0.004) return
-    var s = this.s, rgb = this.rgb
-    c.save(); c.globalAlpha = this.a
-    c.translate(this.x, this.y); c.rotate(this.rot)
-    c.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + this.a + ')'
-    c.beginPath(); c.moveTo(0, -s)
-    c.bezierCurveTo( s*0.62, -s*0.30,  s*0.55,  s*0.42, 0,  s)
-    c.bezierCurveTo(-s*0.48,  s*0.32, -s*0.52, -s*0.38, 0, -s)
-    c.fill(); c.restore()
-  }
-
-  /* ─ Spark ─ */
-  var SPARK_C = ['#fff8d2','#ffe89e','#ffda76','#fff2cc','#ffffff']
-  function Sp(x, y) {
-    this.x = x; this.y = y; this.px = x; this.py = y
-    var ang = Math.random() * 6.283
-    var vel = 2.4 + Math.random() * 5.0
-    this.vx = Math.cos(ang) * vel
-    this.vy = Math.sin(ang) * vel - Math.random() * 1.4
-    this.lw = 0.8 + Math.random() * 1.4
-    this.a  = 0.88 + Math.random() * 0.12
-    this.da = 0.05 + Math.random() * 0.04
-    this.alive = true
-    this.c = SPARK_C[Math.floor(Math.random() * SPARK_C.length)]
-  }
-  Sp.prototype.update = function() {
-    this.px = this.x; this.py = this.y
-    this.x += this.vx; this.y += this.vy
-    this.vy += 0.11; this.vx *= 0.91
-    this.a  -= this.da
-    if (this.a <= 0) this.alive = false
-  }
-  Sp.prototype.draw = function(c) {
-    if (this.a < 0.004) return
-    c.save(); c.globalAlpha = this.a
-    c.strokeStyle = this.c; c.lineWidth = this.lw; c.lineCap = 'round'
-    c.shadowColor = this.c; c.shadowBlur = 2.5
-    c.beginPath(); c.moveTo(this.px, this.py); c.lineTo(this.x, this.y); c.stroke()
-    c.restore()
-  }
-
-  /* ─ Snow ─ */
-  function Sn() {
-    this.x  = Math.random() * W; this.y = -8
-    this.r  = 0.7 + Math.random() * 2.0
-    this.vy = 0.22 + Math.random() * 0.5
-    this.a  = 0.12 + Math.random() * 0.27
-    this.sw = Math.random() * 6.283; this.sws = 0.007 + Math.random() * 0.008
-    this.alive = true
-  }
-  Sn.prototype.update = function() {
-    this.sw += this.sws
-    this.x  += Math.sin(this.sw) * 0.28
-    this.y  += this.vy
-    if (this.y > H + 10) this.alive = false
-  }
-  Sn.prototype.draw = function(c) {
-    c.save(); c.globalAlpha = this.a; c.fillStyle = '#fff'
-    c.beginPath(); c.arc(this.x, this.y, this.r, 0, 6.283); c.fill(); c.restore()
-  }
-
-  /* ── Factories ───────────────────────── */
-  function add(p) { if (parts.length < MAX_P) parts.push(p) }
-
-  function waterBurst(x, y, n, spd) {
-    for (var i = 0; i < n; i++) add(new Wd(x, y, spd))
-    if (Math.random() < 0.38) add(new Rp(x, y))
-  }
-  function sparkBurst(x, y, n) { for (var i = 0; i < n; i++) add(new Sp(x, y)) }
-  function leafBurst(x, y, n)  { for (var i = 0; i < n; i++) add(new Lf(x, y)) }
-
-  /* ── Auto sequence ────────────────────── */
-  function autoSeq() {
-    var cx = W / 2, cy = H / 2
-    add(new Rp(cx, cy))
-    setTimeout(function() { add(new Rp(cx, cy)) }, 460)
-    setTimeout(function() { add(new Rp(cx, cy)) }, 980)
-    setTimeout(function() { waterBurst(cx, cy, isMob ? 6 : 12, 0) }, 730)
-    setTimeout(function() {
-      var n = isMob ? 4 : 7
-      for (var i = 0; i < n; i++) {
-        ;(function(idx) {
-          setTimeout(function() {
-            leafBurst(cx + (Math.random()-0.5)*230, cy + (Math.random()-0.5)*110, 1)
-          }, idx * 270)
-        })(i)
-      }
-    }, 1600)
-    setTimeout(function() { sparkBurst(cx, cy, isMob ? 5 : 11) }, 2800)
-    setTimeout(function() { st.snow = true }, 3500)
-  }
-
-  /* ── Pointer interaction ──────────────── */
-  function onMove(x, y) {
-    var now = Date.now()
-    st.prevPx = st.px; st.prevPy = st.py
-    st.px = x; st.py = y
-    var dx = x - st.prevPx, dy = y - st.prevPy
-    st.speed = Math.sqrt(dx*dx + dy*dy)
-
-    if (!st.active) {
-      st.active = true; st.snow = true
-      if (autoTimer) { clearTimeout(autoTimer); autoTimer = null }
-    }
-
-    var spd = st.speed
-    var n = isMob
-      ? Math.min(3, Math.ceil(spd * 0.28) + 1)
-      : Math.min(7, Math.ceil(spd * 0.44) + 1)
-    waterBurst(x, y, n, spd)
-
-    // leaf trail (rate-limited)
-    if (now - lastLeaf > (spd > 4 ? 280 : 560)) {
-      lastLeaf = now
-      if (Math.random() < 0.48) leafBurst(x + (Math.random()-0.5)*52, y + (Math.random()-0.5)*36, 1)
-    }
-
-    // fast movement → sparks
-    var thr = evening ? 10 : 14
-    if (spd > thr && now - lastSpark > 540) {
-      lastSpark = now; sparkBurst(x, y, isMob ? 4 : 7)
-    }
-
-    lastMove = now
-  }
-
-  function onTap(x, y) {
-    waterBurst(x, y, isMob ? 9 : 15, 6)
-    sparkBurst(x, y, isMob ? 8 : 16)
-    add(new Rp(x, y))
-  }
-
-  /* ── Events ──────────────────────────── */
-  section.addEventListener('mousemove', function(e) {
-    var r = section.getBoundingClientRect()
-    onMove(e.clientX - r.left, e.clientY - r.top)
-  })
-  section.addEventListener('click', function(e) {
-    var r = section.getBoundingClientRect()
-    onTap(e.clientX - r.left, e.clientY - r.top)
-  })
-  section.addEventListener('touchstart', function(e) {
-    var r = section.getBoundingClientRect(), t = e.touches[0]
-    onTap(t.clientX - r.left, t.clientY - r.top)
-  }, { passive: true })
-  section.addEventListener('touchmove', function(e) {
-    var r = section.getBoundingClientRect(), t = e.touches[0]
-    onMove(t.clientX - r.left, t.clientY - r.top)
-  }, { passive: true })
-
-  /* ── RAF loop ────────────────────────── */
-  function loop(now) {
-    animId = requestAnimationFrame(loop)
+  /* ── Draw ───────────────────────────────── */
+  function draw(now) {
+    animId = requestAnimationFrame(draw)
     ctx.clearRect(0, 0, W, H)
 
-    var alive = []
-    for (var i = 0; i < parts.length; i++) {
-      var p = parts[i]; p.update()
-      if (p.alive) { p.draw(ctx); alive.push(p) }
-    }
-    parts = alive
+    var col = getColor(now)
+    if (!col) return
 
-    // snow spawner
-    if (st.snow && parts.length < MAX_P && now - lastSnow > SNOW_INT) {
-      lastSnow = now; add(new Sn())
-    }
+    var R = col[0], G = col[1], B = col[2], A = col[3]
+    if (A < 0.004) return
 
-    // idle accent: ripple + occasional spark when mouse stops
-    if (st.active && now - lastMove > 2300 && now - lastIdle > 4800) {
-      lastIdle = now
-      var cx = W/2 + (Math.random()-0.5)*300
-      var cy = H/2 + (Math.random()-0.5)*150
-      add(new Rp(cx, cy))
-      if (Math.random() < 0.42) sparkBurst(cx, cy, isMob ? 3 : 5)
-    }
+    /* ─ レイヤー1: 全画面ベースカラー（均一塗り）─ */
+    ctx.fillStyle = 'rgba(' + R + ',' + G + ',' + B + ',' + (A * 0.68).toFixed(3) + ')'
+    ctx.fillRect(0, 0, W, H)
+
+    /* ─ レイヤー2: カーソル中心・広域グラデーション ─
+       半径をスクリーン最大辺の 100% に設定し、
+       カーソルの影響が画面全体に及ぶようにする        */
+    var bigR = Math.max(W, H) * 1.05
+    var bR   = Math.min(255, R + 38) | 0
+    var bG   = Math.min(255, G + 38) | 0
+    var bB   = Math.min(255, B + 38) | 0
+
+    var gBig = ctx.createRadialGradient(cx, cy, 0, cx, cy, bigR)
+    gBig.addColorStop(0.00, 'rgba(' + bR + ',' + bG + ',' + bB + ',' + (A * 0.55).toFixed(3) + ')')
+    gBig.addColorStop(0.45, 'rgba(' + R  + ',' + G  + ',' + B  + ',' + (A * 0.22).toFixed(3) + ')')
+    gBig.addColorStop(1.00, 'rgba(' + R  + ',' + G  + ',' + B  + ',0)')
+    ctx.fillStyle = gBig
+    ctx.fillRect(0, 0, W, H)
+
+    /* ─ レイヤー3: カーソル付近のより鮮明なグロー ─
+       スクリーンの 45% の半径で、より濃い色が集まる  */
+    var medR = Math.min(W, H) * 0.45
+    var gMed = ctx.createRadialGradient(cx, cy, 0, cx, cy, medR)
+    gMed.addColorStop(0.0, 'rgba(' + bR + ',' + bG + ',' + bB + ',' + (A * 0.30).toFixed(3) + ')')
+    gMed.addColorStop(0.5, 'rgba(' + R  + ',' + G  + ',' + B  + ',' + (A * 0.08).toFixed(3) + ')')
+    gMed.addColorStop(1.0, 'rgba(' + R  + ',' + G  + ',' + B  + ',0)')
+    ctx.fillStyle = gMed
+    ctx.fillRect(0, 0, W, H)
   }
 
-  /* ── Resize ──────────────────────────── */
+  /* ── Activate sequence ──────────────────── */
+  function activate() {
+    if (isActive) return
+    isActive  = true
+    startTime = performance.now()
+    if (autoTimer) { clearTimeout(autoTimer); autoTimer = null }
+  }
+
+  /* ── Events ─────────────────────────────── */
+  section.addEventListener('mousemove', function (e) {
+    var r = section.getBoundingClientRect()
+    cx = e.clientX - r.left
+    cy = e.clientY - r.top
+    activate()
+  })
+
+  /* クリックでもトリガー */
+  section.addEventListener('click', function (e) {
+    var r = section.getBoundingClientRect()
+    cx = e.clientX - r.left
+    cy = e.clientY - r.top
+    activate()
+  })
+
+  /* タッチ対応 */
+  section.addEventListener('touchstart', function (e) {
+    var r = section.getBoundingClientRect(), t = e.touches[0]
+    cx = t.clientX - r.left; cy = t.clientY - r.top
+    activate()
+  }, { passive: true })
+
+  section.addEventListener('touchmove', function (e) {
+    var r = section.getBoundingClientRect(), t = e.touches[0]
+    cx = t.clientX - r.left; cy = t.clientY - r.top
+  }, { passive: true })
+
+  /* ── Resize ─────────────────────────────── */
   if (window.ResizeObserver) {
     new ResizeObserver(resize).observe(section)
   } else {
@@ -430,20 +337,20 @@
   }
   resize()
 
-  /* ── Visibility pause ────────────────── */
-  document.addEventListener('visibilitychange', function() {
+  /* ── Visibility pause ───────────────────── */
+  document.addEventListener('visibilitychange', function () {
     if (document.hidden) cancelAnimationFrame(animId)
-    else animId = requestAnimationFrame(loop)
+    else animId = requestAnimationFrame(draw)
   })
 
-  /* ── Boot ────────────────────────────── */
-  animId = requestAnimationFrame(loop)
+  /* ── Boot ───────────────────────────────── */
+  animId = requestAnimationFrame(draw)
 
-  autoTimer = setTimeout(function() {
-    if (!st.active) {
-      st.active = true
-      st.px = W / 2; st.py = H / 2
-      autoSeq()
+  /* 4秒後に自動開始（カーソル未操作の場合）*/
+  autoTimer = setTimeout(function () {
+    if (!isActive) {
+      cx = W / 2; cy = H / 2
+      activate()
     }
   }, 4000)
 
