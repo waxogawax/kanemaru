@@ -1,19 +1,17 @@
 ---
-// HeroInteractive — にじみ合う土地の変化（〜20秒）
-// 水が底全体に満ち → 森が生い茂り → 火が宿り → 雪が包む
-// 低解像度 Canvas + CSS blur でにじみを表現
-// カーソルは起動トリガーのみ（追従なし）
+// HeroInteractive — にじみ合う土地の変化 + シダのほどけ
+// 水が底全体に満ち → 縁からシダがほどけ → 森の気配 → 火が宿り → 雪が包む
+// 2枚の Canvas: ① 低解像度 blob（blur強め）② 等倍 fern（精細・blur弱め）
 ---
 
 <section class="hero-ia" id="hero-ia" aria-label="メインビジュアル">
-  <canvas id="hero-ia-cv" class="hero-ia__canvas" aria-hidden="true"></canvas>
+  <!-- ① blob Canvas（低解像度→CSS拡大→blur） -->
+  <canvas id="hero-ia-blob" class="hero-ia__canvas hero-ia__canvas--blob" aria-hidden="true"></canvas>
+  <!-- ② fern Canvas（等倍・精細） -->
+  <canvas id="hero-ia-fern" class="hero-ia__canvas hero-ia__canvas--fern" aria-hidden="true"></canvas>
 
   <!-- サブコピー（中央・縦書き・右から左へ出現） -->
   <div class="hero-ia__sub-copy" aria-hidden="true">
-    <!--
-      flex-direction: row-reverse なので
-      DOM の先頭が視覚的に右端 → 右から左の順に出現する
-    -->
     <span class="hero-ia__sub-line" data-t="4">能登で。</span>
     <span class="hero-ia__sub-line" data-t="5">能登を。</span>
     <span class="hero-ia__sub-line" data-t="6">能登に。</span>
@@ -40,7 +38,6 @@
 </section>
 
 <style>
-  /* ── セクション ────────────────────────── */
   .hero-ia {
     position: relative;
     min-height: 100vh;
@@ -48,22 +45,32 @@
     overflow: hidden;
   }
 
-  /* ── Canvas ─────────────────────────────
-     意図的低解像度 → CSS 拡大 → blur でにじみ   */
+  /* ── Canvas 共通 ─────────────────────── */
   .hero-ia__canvas {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0;
     display: block;
+  }
+
+  /* blob canvas: 低解像度 → 拡大 → blur 強め */
+  .hero-ia__canvas--blob {
+    z-index: 0;
     filter: blur(12px) saturate(1.14);
     transform: scale(1.06);
     transform-origin: center;
   }
 
-  /* ── サブコピー（中央・縦書き列）────────── */
+  /* fern canvas: 等倍・blur 弱め（精細な線を残す）*/
+  .hero-ia__canvas--fern {
+    z-index: 1;
+    filter: blur(1.5px);
+    opacity: 1;
+  }
+
+  /* ── サブコピー ─────────────────────── */
   .hero-ia__sub-copy {
     position: absolute;
     top: 50%;
@@ -71,7 +78,7 @@
     transform: translate(-50%, -50%);
     z-index: 2;
     display: flex;
-    flex-direction: row-reverse;   /* DOM 先頭 = 視覚的に右端 */
+    flex-direction: row-reverse;
     align-items: flex-start;
     gap: 1.8em;
     pointer-events: none;
@@ -97,7 +104,7 @@
     transform: none;
   }
 
-  /* ── メインコピー（アニメ後に出現）──────── */
+  /* ── メインコピー ───────────────────── */
   .hero-ia__catch {
     position: absolute;
     right: clamp(40px, 7vw, 100px);
@@ -124,7 +131,7 @@
     transform: none;
   }
 
-  /* ── フッターコンテンツ（アニメ後に出現）── */
+  /* ── フッターコンテンツ ─────────────── */
   .hero-ia__footer {
     position: absolute;
     bottom: clamp(40px, 7vh, 70px);
@@ -197,108 +204,132 @@
   /* ── モバイル ────────────────────────── */
   @media (max-width: 768px) {
     .hero-ia__catch {
-      font-size: clamp(24px, 7vw, 36px);
+      font-size: clamp(22px, 6.5vw, 36px);
       right: clamp(20px, 5vw, 48px);
       bottom: clamp(100px, 18vh, 160px);
     }
     .hero-ia__sub-copy {
-      gap: 1.2em;
+      gap: 1.0em;
+      top: 45%;
     }
     .hero-ia__sub-line {
-      font-size: clamp(11px, 3vw, 14px);
+      font-size: clamp(10px, 2.8vw, 13px);
     }
     .hero-ia__footer {
       left: clamp(16px, 4vw, 32px);
     }
+    .hero-ia__canvas--fern {
+      filter: blur(1px);
+    }
   }
 
-  /* ── アクセシビリティ ─────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .hero-ia__scroll-line { animation: none; }
     .hero-ia__catch,
-    .hero-ia__footer {
-      transition: none;
-    }
+    .hero-ia__footer { transition: none; }
   }
 </style>
 
 <script>
+/* =====================================================
+   HeroInteractive — にじみ合う土地の変化
+   水 → シダ → 葉 → 落ち火 → 雪
+   ===================================================== */
 (function () {
   'use strict'
 
-  /* ── Guard ─────────────────────────────── */
+  /* ━━ Guard ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   var section = document.getElementById('hero-ia')
-  var canvas  = document.getElementById('hero-ia-cv')
-  if (!section || !canvas) return
-  var ctx = canvas.getContext('2d')
+  var blobCv  = document.getElementById('hero-ia-blob')
+  var fernCv  = document.getElementById('hero-ia-fern')
+  if (!section || !blobCv || !fernCv) return
+  var bCtx = blobCv.getContext('2d')
+  var fCtx = fernCv.getContext('2d')
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (reduced) {
-    section.querySelectorAll('.hero-ia__sub-line').forEach(function (l) {
-      l.classList.add('is-shown')
-    })
+    section.querySelectorAll('.hero-ia__sub-line').forEach(function (l) { l.classList.add('is-shown') })
     section.classList.add('is-done')
     return
   }
 
-  /* ── 低解像度スケール ───────────────────
-     Canvas を 35% で描画し CSS で 100% に拡大、
-     filter:blur がにじみを作る               */
-  var SCALE = 0.35
-  var LW = 0, LH = 0   // section の論理サイズ
-  var CW = 0, CH = 0   // canvas バッファサイズ
+  /* ━━ サイズ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     blob  : 35% 解像度 → 拡大 → blur でにじむ
+     fern  : フル解像度（DPR 対応・精細な線）    */
+  var BSCALE = 0.35
+  var DPR    = Math.min(window.devicePixelRatio || 1, 2)
+  var LW = 0, LH = 0
+  var BW = 0, BH = 0
+  var FW = 0, FH = 0
 
-  /* ── 状態 ──────────────────────────────── */
+  /* ━━ 状態 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   var startTime = null
   var isActive  = false
+  var isDone    = false
   var autoTimer = null
   var animId    = null
 
-  /* ─────────────────────────────────────────
-     フィールド定義
+  /* ━━ Blob フィールド定義 ━━━━━━━━━━━━━━━━━━
      [type, bx, by, mr, maxA, sa, gd, trA]
-       type : 'w'水 / 'l'葉 / 'f'火
+       type : w=水 l=葉 f=火
        bx,by: 正規化位置（0–1）
-       mr   : 最大半径（CH の倍率）
-       maxA : 中心の最大 alpha
-       sa   : 発生時刻（s、起動後）
+       mr   : 最大半径（BH 倍率）
+       maxA : ピーク alpha
+       sa   : 発生時刻（s）
        gd   : 成長時間（s）
-       trA  : 痕跡として残る最低 alpha
-  ───────────────────────────────────────── */
-  var DEFS = [
-    /* 水 ── 画面下部全体に幅広く広がる（0.3〜4s）*/
-    ['w', 0.08, 0.80, 0.41, 0.46, 0.3, 2.8, 0.07],
-    ['w', 0.26, 0.84, 0.44, 0.50, 0.7, 3.0, 0.07],
-    ['w', 0.46, 0.78, 0.47, 0.54, 1.1, 3.0, 0.08],
-    ['w', 0.64, 0.82, 0.45, 0.50, 1.5, 3.0, 0.07],
-    ['w', 0.82, 0.79, 0.42, 0.46, 1.9, 2.8, 0.06],
-    ['w', 0.96, 0.75, 0.38, 0.40, 2.3, 2.8, 0.05],
-
-    /* 葉 ── 水の上から生い茂る（4〜8s）*/
-    ['l', 0.12, 0.55, 0.31, 0.44, 4.0, 3.2, 0.05],
-    ['l', 0.32, 0.48, 0.35, 0.48, 4.5, 3.2, 0.05],
-    ['l', 0.53, 0.52, 0.34, 0.46, 5.0, 3.2, 0.05],
-    ['l', 0.72, 0.50, 0.32, 0.42, 5.5, 3.0, 0.04],
-    ['l', 0.90, 0.56, 0.27, 0.36, 6.5, 2.8, 0.04],
-
-    /* 火 ── 葉の内部に宿る熾火（7.5〜11s）*/
-    ['f', 0.34, 0.53, 0.17, 0.28, 7.5, 2.8, 0.03],
-    ['f', 0.55, 0.50, 0.15, 0.25, 9.0, 2.6, 0.03],
-    ['f', 0.71, 0.55, 0.13, 0.22, 10.5, 2.4, 0.02],
+       trA  : 雪後の痕跡 alpha                  */
+  var BDEFS = [
+    /* 水 — 下部全体に広がる */
+    ['w', 0.08, 0.80, 0.41, 0.46,  0.3, 2.8, 0.07],
+    ['w', 0.26, 0.84, 0.44, 0.50,  0.7, 3.0, 0.07],
+    ['w', 0.46, 0.78, 0.47, 0.54,  1.1, 3.0, 0.08],
+    ['w', 0.64, 0.82, 0.45, 0.50,  1.5, 3.0, 0.07],
+    ['w', 0.82, 0.79, 0.42, 0.46,  1.9, 2.8, 0.06],
+    ['w', 0.96, 0.75, 0.38, 0.40,  2.3, 2.8, 0.05],
+    /* 葉 — 水の上から生い茂る */
+    ['l', 0.12, 0.55, 0.31, 0.44,  4.0, 3.2, 0.05],
+    ['l', 0.32, 0.48, 0.35, 0.48,  4.5, 3.2, 0.05],
+    ['l', 0.53, 0.52, 0.34, 0.46,  5.0, 3.2, 0.05],
+    ['l', 0.72, 0.50, 0.32, 0.42,  5.5, 3.0, 0.04],
+    ['l', 0.90, 0.56, 0.27, 0.36,  6.5, 2.8, 0.04],
+    /* 火（中層）— 葉の内部に熾火 */
+    ['f', 0.28, 0.52, 0.18, 0.34,  7.5, 2.8, 0.03],
+    ['f', 0.52, 0.48, 0.16, 0.30,  8.5, 2.6, 0.03],
+    ['f', 0.70, 0.54, 0.14, 0.26,  9.5, 2.5, 0.03],
+    /* 火（上層）— 上から降りかかる気配 */
+    ['f', 0.38, 0.30, 0.13, 0.20,  9.0, 2.2, 0.01],
+    ['f', 0.60, 0.24, 0.11, 0.17, 10.5, 2.0, 0.01],
   ]
 
-  /* 各 type の色 [R, G, B] */
-  var COL = {
-    w: [132, 188, 224],   /* 水 — 朝霞の青 */
-    l: [82,  135, 84 ],   /* 葉 — 苔・若葉の緑 */
-    f: [194, 104, 38 ],   /* 火 — 熾火の橙 */
+  var BCOL = {
+    w: [132, 188, 224],
+    l: [82,  135, 84 ],
+    f: [194, 104, 38 ],
   }
 
-  /* ── フィールドインスタンス ─────────────── */
-  var FIELDS = null
-  var SPARKS = []   /* クリック時の一時的な火花 */
+  var BFIELDS = null
+  var SPARKS  = []
 
-  /* ── ユーティリティ ─────────────────────── */
+  /* ━━ シダ種定義 ━━━━━━━━━━━━━━━━━━━━━━━━━
+     wi     : BDEFS 水 blob インデックス（0–5）
+     angOff : 上向き（-π/2）からの角度オフセット
+     sa     : 発生時刻（s）
+     flipX  : true で左右ミラー                  */
+  var FERN_SEEDS = [
+    { wi: 1, angOff:  0.18, sa: 6.0,  flipX: false },
+    { wi: 2, angOff: -0.22, sa: 6.8,  flipX: true  },
+    { wi: 3, angOff:  0.10, sa: 7.5,  flipX: false },
+    { wi: 1, angOff: -0.30, sa: 8.2,  flipX: true  },
+    { wi: 4, angOff:  0.24, sa: 9.0,  flipX: false },
+    { wi: 0, angOff: -0.14, sa: 9.8,  flipX: true  },
+  ]
+  var FERNS = null
+
+  /* ━━ 落ち火の粒（上から降る ember） ━━━━━━━
+     起動時に pre-generate。fern canvas に描画。  */
+  var EMBERS = []
+
+  /* ━━ ユーティリティ ━━━━━━━━━━━━━━━━━━━━━━ */
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v }
   function easeOut(t) { t = clamp(t, 0, 1); return 1 - Math.pow(1 - t, 2.6) }
   function rgba(col, a) {
@@ -306,13 +337,13 @@
     return 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a.toFixed(3) + ')'
   }
 
-  /* ── フィールド初期化 ────────────────────── */
-  function initFields() {
-    FIELDS = DEFS.map(function (d) {
+  /* ━━ Blob 初期化 ━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function initBlobs() {
+    BFIELDS = BDEFS.map(function (d) {
       return {
         type: d[0], bx: d[1], by: d[2],
-        x: d[1] * CW, y: d[2] * CH,
-        r: d[3] * CH,
+        x: d[1] * BW, y: d[2] * BH,
+        r: d[3] * BH,
         maxA: d[4], sa: d[5], gd: d[6], trA: d[7],
         wobX: Math.random() * 6.283,
         wobY: Math.random() * 6.283,
@@ -322,118 +353,358 @@
     SPARKS = []
   }
 
-  function refreshFieldCoords() {
-    if (!FIELDS) return
-    DEFS.forEach(function (d, i) {
-      FIELDS[i].x = d[1] * CW
-      FIELDS[i].y = d[2] * CH
-      FIELDS[i].r = d[3] * CH
+  function refreshBlobCoords() {
+    if (!BFIELDS) return
+    BDEFS.forEach(function (d, i) {
+      BFIELDS[i].x = d[1] * BW
+      BFIELDS[i].y = d[2] * BH
+      BFIELDS[i].r = d[3] * BH
     })
   }
 
-  /* ── リサイズ ───────────────────────────── */
+  /* ━━ シダ初期化 ━━━━━━━━━━━━━━━━━━━━━━━━━
+     参照 HTML のアルゴリズムに準拠:
+       r = (a · e^(b·θ) + wobble) · 16 · scale
+     水 blob の縁から上方向に生やす               */
+  function initFerns() {
+    var isMob = LW < 768
+    var baseScale = Math.min(LW, LH) / (isMob ? 680 : 520)
+
+    FERNS = FERN_SEEDS.map(function (seed) {
+      var bd = BDEFS[seed.wi]
+      var blobX = bd[1] * LW
+      var blobY = bd[2] * LH
+      var blobR = bd[3] * LH        /* 水 blob 半径（論理px）*/
+
+      /* 縁の座標: 水 blob 上端付近から生える */
+      var spawnAng = -Math.PI * 0.5 + seed.angOff   /* 上方向 ±offset */
+      var edgeFrac = 0.78
+      var ox = blobX + Math.cos(spawnAng) * blobR * edgeFrac
+      var oy = blobY + Math.sin(spawnAng) * blobR * edgeFrac
+
+      return {
+        ox: ox, oy: oy,
+        rotation: spawnAng,          /* 螺旋の成長方向 */
+        flipX: seed.flipX,
+        scale: baseScale * (0.65 + Math.random() * 0.55),
+        a: 2.2 + Math.random() * 1.4,
+        b: 0.096 + Math.random() * 0.024,
+        maxTheta: Math.PI * (5.0 + Math.random() * 2.8),
+        sa: seed.sa,
+        growDur: 6.5,
+        traceAlpha: 0.022,
+        hueShift: (Math.random() - 0.5) * 20,
+        phaseSeed: Math.random() * 6.283,
+      }
+    })
+  }
+
+  /* ━━ Ember 初期化 ━━━━━━━━━━━━━━━━━━━━━━━━
+     火フェーズ（t=7.5-17s）に上から降る粒子。
+     pre-generate して決定論的に描画する。        */
+  function initEmbers() {
+    var count = LW < 768 ? 26 : 44
+    EMBERS = []
+    for (var k = 0; k < count; k++) {
+      EMBERS.push({
+        sx:   LW * (0.05 + Math.random() * 0.90),
+        sy:   -(LH * (0.03 + Math.random() * 0.10)),
+        vx:   (Math.random() - 0.5) * 48,
+        vy:   52 + Math.random() * 88,
+        born: 7.5 + Math.random() * 7.0,
+        life: 2.5 + Math.random() * 3.5,
+        r:    1.6 + Math.random() * 2.4,
+        hue:  16 + Math.random() * 30,
+        maxA: 0.24 + Math.random() * 0.22,
+      })
+    }
+  }
+
+  /* ━━ シダ描画 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     参照 HTML のアルゴリズムを移植:
+     ・対数螺旋 + 時間ベースの wobble
+     ・主茎 + 内側ハイライト
+     ・小葉（leaflet）+ 先端楕円
+     ctx.globalAlpha で全体透明度を一括制御      */
+  function drawFern(ctx, fern, progress, globalAlpha, wt) {
+    if (progress <= 0 || globalAlpha < 0.004) return
+
+    var currentTheta = fern.maxTheta * progress
+    var step  = 0.058
+    var pts   = []
+
+    for (var theta = 0; theta <= currentTheta; theta += step) {
+      var wobble = Math.sin(theta * 2.4 + wt * 0.35 + fern.phaseSeed) * 4.5 +
+                   Math.sin(theta * 5.1 + wt * 0.22 + fern.phaseSeed) * 1.8
+      var r     = (fern.a * Math.exp(fern.b * theta) + wobble) * 16 * fern.scale
+      var angle = theta + fern.rotation
+      /* fern 原点からの相対座標（ctx.translate 後に使う）*/
+      pts.push({ theta: theta, x: r * Math.cos(angle), y: r * Math.sin(angle), angle: angle })
+    }
+    if (pts.length < 2) return
+
+    ctx.save()
+    ctx.globalAlpha = Math.min(1, globalAlpha)
+    ctx.translate(fern.ox, fern.oy)
+    if (fern.flipX) ctx.scale(-1, 1)
+    ctx.lineCap  = 'round'
+    ctx.lineJoin = 'round'
+
+    /* 水の染み（発生点周辺の淡い輪郭）*/
+    var stainR = Math.max(28, pts[pts.length - 1].x * 0.5)
+    var sg = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.abs(stainR))
+    sg.addColorStop(0,   'rgba(126,178,190,0.10)')
+    sg.addColorStop(0.5, 'rgba(136,179,128,0.05)')
+    sg.addColorStop(1,   'rgba(255,253,248,0)')
+    ctx.fillStyle = sg
+    ctx.beginPath()
+    ctx.arc(0, 0, Math.abs(stainR), 0, Math.PI * 2)
+    ctx.fill()
+
+    /* 主茎 */
+    ctx.beginPath()
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i]
+      if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y)
+    }
+    ctx.strokeStyle = 'hsla(' + (118 + fern.hueShift) + ',32%,38%,0.60)'
+    ctx.lineWidth   = Math.max(1.0, 2.8 * fern.scale)
+    ctx.stroke()
+
+    /* 内側ハイライト */
+    ctx.beginPath()
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i]
+      if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y)
+    }
+    ctx.strokeStyle = 'rgba(240,248,220,0.26)'
+    ctx.lineWidth   = Math.max(0.5, 1.0 * fern.scale)
+    ctx.stroke()
+
+    /* 小葉（leaflet）*/
+    for (var i = 8; i < pts.length - 4; i += 7) {
+      var p = pts[i]
+      var localOpen = Math.min(1, Math.max(0, (currentTheta - p.theta) / 1.75))
+      if (localOpen <= 0.02) continue
+      var sidePulse = 0.82 + 0.18 * Math.sin(p.theta * 1.7)
+      var len  = (7 + p.theta * 1.05) * fern.scale * localOpen * sidePulse
+      var norm = p.angle + Math.PI * 0.5
+      var curl = Math.sin(p.theta * 1.23 + wt * 0.6 + fern.phaseSeed) * 0.28
+      for (var side = -1; side <= 1; side += 2) {
+        var la   = norm * side + curl
+        var tipX = p.x + Math.cos(la) * len
+        var tipY = p.y + Math.sin(la) * len
+        ctx.beginPath()
+        ctx.moveTo(p.x, p.y)
+        ctx.quadraticCurveTo(
+          p.x + Math.cos(la + side * 0.34) * len * 0.58,
+          p.y + Math.sin(la + side * 0.34) * len * 0.58,
+          tipX, tipY
+        )
+        ctx.strokeStyle = 'hsla(' + (112 + fern.hueShift) + ',34%,44%,' + (0.32 * localOpen).toFixed(3) + ')'
+        ctx.lineWidth   = Math.max(0.4, 0.85 * fern.scale)
+        ctx.stroke()
+        /* 先端楕円 */
+        ctx.save()
+        ctx.translate(tipX, tipY)
+        ctx.rotate(la)
+        ctx.beginPath()
+        ctx.ellipse(0, 0, len * 0.17, len * 0.048, 0, 0, Math.PI * 2)
+        ctx.fillStyle = 'hsla(' + (106 + fern.hueShift) + ',38%,50%,' + (0.18 * localOpen).toFixed(3) + ')'
+        ctx.fill()
+        ctx.restore()
+      }
+    }
+    ctx.restore()
+  }
+
+  /* ━━ リサイズ ━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   function resize() {
     LW = section.clientWidth  || window.innerWidth
     LH = section.clientHeight || window.innerHeight
-    CW = Math.round(LW * SCALE)
-    CH = Math.round(LH * SCALE)
-    canvas.width  = CW
-    canvas.height = CH
-    if (!FIELDS) initFields()
-    else refreshFieldCoords()
+
+    BW = Math.round(LW * BSCALE)
+    BH = Math.round(LH * BSCALE)
+    blobCv.width  = BW
+    blobCv.height = BH
+
+    FW = LW; FH = LH
+    fernCv.width  = Math.round(FW * DPR)
+    fernCv.height = Math.round(FH * DPR)
+    fCtx.setTransform(DPR, 0, 0, DPR, 0, 0)
+
+    if (!BFIELDS) { initBlobs(); initFerns(); initEmbers() }
+    else          { refreshBlobCoords(); initFerns(); initEmbers() }
   }
 
-  /* ── 描画 ───────────────────────────────── */
+  /* ━━ メインループ ━━━━━━━━━━━━━━━━━━━━━━━━ */
   function draw(now) {
     animId = requestAnimationFrame(draw)
+    var wt = now * 0.001
 
-    /* 白紙をベースに */
-    ctx.fillStyle = '#FFFDF8'
-    ctx.fillRect(0, 0, CW, CH)
+    /* ── 完了後: 薄い痕跡が微細に揺れ続ける ── */
+    if (isDone) {
+      bCtx.fillStyle = '#FFFDF8'
+      bCtx.fillRect(0, 0, BW, BH)
+      for (var i = 0; i < BFIELDS.length; i++) {
+        var f   = BFIELDS[i]
+        var trA = f.trA * 0.16
+        var wx  = f.x + Math.sin(wt * f.wobSpd        + f.wobX) * f.r * 0.025
+        var wy  = f.y + Math.sin(wt * f.wobSpd * 0.71 + f.wobY) * f.r * 0.020
+        var g   = bCtx.createRadialGradient(wx, wy, 0, wx, wy, f.r)
+        g.addColorStop(0,   rgba(BCOL[f.type], trA))
+        g.addColorStop(0.5, rgba(BCOL[f.type], trA * 0.38))
+        g.addColorStop(1,   rgba(BCOL[f.type], 0))
+        bCtx.fillStyle = g
+        bCtx.fillRect(
+          Math.max(0, wx - f.r), Math.max(0, wy - f.r),
+          Math.min(BW - Math.max(0, wx - f.r), f.r * 2),
+          Math.min(BH - Math.max(0, wy - f.r), f.r * 2)
+        )
+      }
+      /* 雪ヴェール最終値 */
+      bCtx.fillStyle = 'rgba(250,248,244,0.72)'
+      bCtx.fillRect(0, 0, BW, BH)
 
+      /* fern 痕跡（最後フレームと連続する alpha で揺れる）*/
+      fCtx.clearRect(0, 0, FW, FH)
+      if (FERNS) {
+        for (var j = 0; j < FERNS.length; j++) {
+          var fn = FERNS[j]
+          /* snowP=1 のときの fernAlpha に合わせて連続させる */
+          var trFernA = fn.traceAlpha + (0.42 - fn.traceAlpha) * 0.12
+          drawFern(fCtx, fn, 1.0, trFernA, wt)
+        }
+      }
+      return
+    }
+
+    /* ── 未起動: 白紙待機 ──────────────────── */
+    bCtx.fillStyle = '#FFFDF8'
+    bCtx.fillRect(0, 0, BW, BH)
+    fCtx.clearRect(0, 0, FW, FH)
     if (!isActive || !startTime) return
 
     var elapsed = (now - startTime) / 1000
-    var wt      = now * 0.001   /* 連続波形時間 */
+    var tSnow   = elapsed - 11                              /* 11s 以降が雪フェーズ */
+    var snowP   = easeOut(clamp(tSnow / 8, 0, 1))          /* 全体的な雪進行（field alpha 用）*/
 
-    /* 雪のヴェール（11〜19s で展開）*/
-    var snowP = easeOut(clamp((elapsed - 11) / 8, 0, 1))
-
-    /* ── フィールド描画 ─────────────────── */
-    for (var i = 0; i < FIELDS.length; i++) {
-      var f = FIELDS[i]
+    /* ── Blob 描画（y 位置に応じて雪による褪せ方が異なる）── */
+    for (var i = 0; i < BFIELDS.length; i++) {
+      var f = BFIELDS[i]
       if (elapsed < f.sa) continue
-
       var growT  = clamp((elapsed - f.sa) / f.gd, 0, 1)
       var radius = f.r * easeOut(growT)
       if (radius < 0.5) continue
-
-      /* 透明度: 成長 → 雪に引き下げられ痕跡へ */
-      var peakA = f.maxA * easeOut(growT)
-      var alpha = f.trA + (peakA - f.trA) * (1 - snowP * 0.85)
+      /* 上にある blob ほど雪で先に褪せる（押しつぶし感を強化）*/
+      var fieldSnowP = easeOut(clamp((tSnow - f.by * 5.0) / 5.5, 0, 1))
+      var peakA  = f.maxA * easeOut(growT)
+      var alpha  = f.trA + (peakA - f.trA) * (1 - fieldSnowP * 0.86)
       if (alpha < 0.003) continue
-
-      /* 有機的な揺れ */
-      var wx = f.x + Math.sin(wt * f.wobSpd         + f.wobX) * radius * 0.09
-      var wy = f.y + Math.sin(wt * f.wobSpd * 0.71  + f.wobY) * radius * 0.07
-
-      var col = COL[f.type]
-      var g   = ctx.createRadialGradient(wx, wy, 0, wx, wy, radius)
+      var wx  = f.x + Math.sin(wt * f.wobSpd        + f.wobX) * radius * 0.09
+      var wy  = f.y + Math.sin(wt * f.wobSpd * 0.71 + f.wobY) * radius * 0.07
+      var col = BCOL[f.type]
+      var g   = bCtx.createRadialGradient(wx, wy, 0, wx, wy, radius)
       g.addColorStop(0,    rgba(col, alpha))
       g.addColorStop(0.38, rgba(col, alpha * 0.72))
       g.addColorStop(0.74, rgba(col, alpha * 0.28))
       g.addColorStop(1,    rgba(col, 0))
-      ctx.fillStyle = g
-
-      /* 描画矩形をキャンバス内に収める */
-      var rx = Math.max(0, wx - radius)
-      var ry = Math.max(0, wy - radius)
-      ctx.fillRect(rx, ry, Math.min(CW - rx, radius * 2), Math.min(CH - ry, radius * 2))
+      bCtx.fillStyle = g
+      var rx = Math.max(0, wx - radius), ry = Math.max(0, wy - radius)
+      bCtx.fillRect(rx, ry, Math.min(BW - rx, radius * 2), Math.min(BH - ry, radius * 2))
     }
 
-    /* ── 火花（クリック時のみ）───────────── */
+    /* ── 火花（クリック）────────────────── */
     for (var i = SPARKS.length - 1; i >= 0; i--) {
       var s   = SPARKS[i]
       var age = elapsed - s.born
       if (age > s.life) { SPARKS.splice(i, 1); continue }
-      var p   = age / s.life
-      var sa  = p < 0.28 ? (p / 0.28) * s.maxA : s.maxA * (1 - (p - 0.28) / 0.72)
-      var sr  = s.r * easeOut(Math.min(1, p / 0.35))
-      var sg  = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, sr)
-      sg.addColorStop(0, rgba(COL['f'], sa))
-      sg.addColorStop(1, rgba(COL['f'], 0))
-      ctx.fillStyle = sg
-      ctx.fillRect(Math.max(0, s.x - sr), Math.max(0, s.y - sr), sr * 2, sr * 2)
+      var p  = age / s.life
+      var sa = p < 0.28 ? (p / 0.28) * s.maxA : s.maxA * (1 - (p - 0.28) / 0.72)
+      var sr = s.r * easeOut(Math.min(1, p / 0.35))
+      var sg = bCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, sr)
+      sg.addColorStop(0, rgba(BCOL['f'], sa))
+      sg.addColorStop(1, rgba(BCOL['f'], 0))
+      bCtx.fillStyle = sg
+      bCtx.fillRect(Math.max(0, s.x - sr), Math.max(0, s.y - sr), sr * 2, sr * 2)
     }
 
-    /* ── 雪のヴェール：白く包む ─────────────
-       全体に均一に広がり、色をゆっくり覆う
-       trA で痕跡がヴェールの奥に残る            */
-    if (snowP > 0.003) {
-      ctx.fillStyle = 'rgba(250,248,244,' + (snowP * 0.68).toFixed(3) + ')'
-      ctx.fillRect(0, 0, CW, CH)
+    /* ── 雪: 上から押しつぶすように白く染め上げる ──
+       上部が最初に白くなり、時差をつけて下方へ圧迫。
+       最終的に全面 0.82 の白ヴェールで覆う。         */
+    if (tSnow > 0) {
+      var SNM  = 0.82
+      var top  = easeOut(clamp(tSnow / 3.5, 0, 1))
+      var mid1 = easeOut(clamp((tSnow - 2.0) / 3.5, 0, 1))
+      var mid2 = easeOut(clamp((tSnow - 4.0) / 3.5, 0, 1))
+      var bot  = easeOut(clamp((tSnow - 5.5) / 2.5, 0, 1))
+      var snowGrad = bCtx.createLinearGradient(0, 0, 0, BH)
+      snowGrad.addColorStop(0,    'rgba(250,248,244,' + (top  * SNM).toFixed(3) + ')')
+      snowGrad.addColorStop(0.28, 'rgba(250,248,244,' + (mid1 * SNM).toFixed(3) + ')')
+      snowGrad.addColorStop(0.62, 'rgba(250,248,244,' + (mid2 * SNM * 0.95).toFixed(3) + ')')
+      snowGrad.addColorStop(1,    'rgba(250,248,244,' + (bot  * SNM).toFixed(3) + ')')
+      bCtx.fillStyle = snowGrad
+      bCtx.fillRect(0, 0, BW, BH)
     }
 
-    /* ── アニメーション完了（〜19s）──────── */
-    if (snowP >= 1.0 && elapsed > 20) {
-      cancelAnimationFrame(animId)
-      animId = null
-      section.classList.add('is-done')   /* h1 + フッター出現 */
+    /* ── シダ（fern canvas）─────────────── */
+    if (FERNS && elapsed >= 6) {
+      for (var j = 0; j < FERNS.length; j++) {
+        var fn = FERNS[j]
+        if (elapsed < fn.sa) continue
+        var fernT     = clamp((elapsed - fn.sa) / fn.growDur, 0, 1)
+        var prog      = easeOut(fernT)
+        var peakAlpha = 0.42 * prog
+        var fernAlpha = fn.traceAlpha + (peakAlpha - fn.traceAlpha) * (1 - snowP * 0.88)
+        drawFern(fCtx, fn, prog, fernAlpha, wt)
+      }
+    }
+
+    /* ── 落ち火の粒（fern canvas）───────────
+       t=7.5-17s に上部から画面へ降り落ちる。
+       雪フェーズと共に snowP で消えていく。      */
+    if (EMBERS.length && elapsed >= 7.5) {
+      for (var k = 0; k < EMBERS.length; k++) {
+        var em  = EMBERS[k]
+        var age = elapsed - em.born
+        if (age < 0 || age > em.life) continue
+        var ex  = em.sx + em.vx * age
+        var ey  = em.sy + em.vy * age + 12 * age * age
+        if (ex < -30 || ex > LW + 30 || ey < -30 || ey > LH * 1.08) continue
+        var p   = age / em.life
+        var ea  = (p < 0.14 ? p / 0.14 : p > 0.72 ? 1 - (p - 0.72) / 0.28 : 1) * em.maxA
+        ea     *= clamp(1 - snowP * 0.96, 0, 1)
+        if (ea < 0.006) continue
+        var gr  = em.r * 3.5
+        var eg  = fCtx.createRadialGradient(ex, ey, 0, ex, ey, gr)
+        eg.addColorStop(0,    'hsla(' + em.hue + ',96%,80%,' + ea.toFixed(3) + ')')
+        eg.addColorStop(0.28, 'hsla(' + em.hue + ',88%,62%,' + (ea * 0.65).toFixed(3) + ')')
+        eg.addColorStop(0.72, 'hsla(' + em.hue + ',72%,46%,' + (ea * 0.18).toFixed(3) + ')')
+        eg.addColorStop(1,    'hsla(' + em.hue + ',55%,32%,0)')
+        fCtx.fillStyle = eg
+        fCtx.beginPath()
+        fCtx.arc(ex, ey, gr, 0, Math.PI * 2)
+        fCtx.fill()
+      }
+    }
+
+    /* ── 完了判定 ──────────────────────────── */
+    if (snowP >= 0.99 && elapsed > 20) {
+      isDone = true
+      section.classList.add('is-done')
     }
   }
 
-  /* ── サブコピー出現スケジュール ─────────── */
+  /* ━━ サブコピー出現 ━━━━━━━━━━━━━━━━━━━━━━ */
   var copyTimers = []
   function scheduleCopies() {
     section.querySelectorAll('.hero-ia__sub-line').forEach(function (el) {
       var t = parseFloat(el.getAttribute('data-t') || '0')
-      copyTimers.push(setTimeout(function () {
-        el.classList.add('is-shown')
-      }, t * 1000))
+      copyTimers.push(setTimeout(function () { el.classList.add('is-shown') }, t * 1000))
     })
   }
 
-  /* ── 起動 ───────────────────────────────── */
+  /* ━━ 起動 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   function activate() {
     if (isActive) return
     isActive  = true
@@ -442,16 +713,16 @@
     scheduleCopies()
   }
 
-  /* ── 火花（クリック時）─────────────────── */
+  /* ━━ クリック火花 ━━━━━━━━━━━━━━━━━━━━━━━━ */
   function addSpark(clientX, clientY) {
     if (!isActive || !startTime) return
     var r       = section.getBoundingClientRect()
     var elapsed = (performance.now() - startTime) / 1000
     for (var k = 0; k < 2; k++) {
       SPARKS.push({
-        x:    (clientX - r.left + (Math.random() - 0.5) * LW * 0.04) * SCALE,
-        y:    (clientY - r.top  + (Math.random() - 0.5) * LH * 0.04) * SCALE,
-        r:    (0.05 + Math.random() * 0.04) * CH,
+        x:    (clientX - r.left + (Math.random() - 0.5) * LW * 0.04) * BSCALE,
+        y:    (clientY - r.top  + (Math.random() - 0.5) * LH * 0.04) * BSCALE,
+        r:    (0.05 + Math.random() * 0.04) * BH,
         maxA: 0.22 + Math.random() * 0.08,
         born: elapsed,
         life: 1.2 + Math.random() * 0.7,
@@ -459,19 +730,11 @@
     }
   }
 
-  /* ── イベント ───────────────────────────── */
+  /* ━━ イベント ━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   section.addEventListener('mousemove', function () { activate() })
+  section.addEventListener('click', function (e) { activate(); addSpark(e.clientX, e.clientY) })
+  section.addEventListener('touchstart', function () { activate() }, { passive: true })
 
-  section.addEventListener('click', function (e) {
-    activate()
-    addSpark(e.clientX, e.clientY)
-  })
-
-  section.addEventListener('touchstart', function (e) {
-    activate()
-  }, { passive: true })
-
-  /* ── リサイズ ───────────────────────────── */
   if (window.ResizeObserver) {
     new ResizeObserver(resize).observe(section)
   } else {
@@ -479,22 +742,13 @@
   }
   resize()
 
-  /* ── タブ非表示時に一時停止 ─────────────── */
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) {
-      cancelAnimationFrame(animId); animId = null
-    } else if (!animId && isActive && !section.classList.contains('is-done')) {
-      animId = requestAnimationFrame(draw)
-    }
+    if (document.hidden) { cancelAnimationFrame(animId); animId = null }
+    else if (!animId)    { animId = requestAnimationFrame(draw) }
   })
 
-  /* ── 起動 ───────────────────────────────── */
-  animId = requestAnimationFrame(draw)
-
-  /* 4秒後に自動開始（カーソル操作なしの場合）*/
-  autoTimer = setTimeout(function () {
-    if (!isActive) activate()
-  }, 4000)
+  animId    = requestAnimationFrame(draw)
+  autoTimer = setTimeout(function () { if (!isActive) activate() }, 4000)
 
 })()
 </script>

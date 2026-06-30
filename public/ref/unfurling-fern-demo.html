@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unfurling Fern / Vine Motion Demo</title>
+<style>
+  :root {
+    --paper: #fffdf8;
+    --ink: #2b2622;
+  }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  }
+
+  body {
+    overflow: hidden;
+  }
+
+  .stage {
+    position: relative;
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100svh;
+    background:
+      radial-gradient(circle at 48% 52%, rgba(126, 174, 136, 0.11), transparent 32%),
+      linear-gradient(180deg, #fffdf8 0%, #faf7ef 100%);
+    overflow: hidden;
+  }
+
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .title {
+    position: absolute;
+    right: clamp(24px, 7vw, 96px);
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+    font-size: clamp(28px, 4.8vw, 64px);
+    letter-spacing: 0.16em;
+    line-height: 1.45;
+    color: rgba(43, 38, 34, 0.78);
+    text-shadow:
+      0 0 22px rgba(255, 253, 248, 1),
+      0 0 64px rgba(255, 253, 248, 0.92);
+    pointer-events: none;
+  }
+
+  .caption {
+    position: absolute;
+    left: clamp(20px, 5vw, 72px);
+    bottom: clamp(20px, 5vh, 56px);
+    max-width: 360px;
+    font-size: 13px;
+    line-height: 1.9;
+    letter-spacing: 0.06em;
+    color: rgba(43, 38, 34, 0.62);
+    pointer-events: none;
+  }
+
+  .caption strong {
+    font-weight: 500;
+    color: rgba(43, 38, 34, 0.82);
+  }
+
+  @media (max-width: 720px) {
+    .title {
+      right: 50%;
+      transform: translate(50%, -50%);
+      font-size: clamp(30px, 9vw, 42px);
+    }
+
+    .caption {
+      left: 22px;
+      right: 22px;
+      max-width: none;
+      font-size: 12px;
+      bottom: max(22px, env(safe-area-inset-bottom));
+    }
+  }
+</style>
+</head>
+<body>
+  <section class="stage">
+    <canvas id="cv" aria-hidden="true"></canvas>
+    <div class="title">能登でをに、暮らす。</div>
+    <div class="caption">
+      <strong>対数螺旋 + 小葉生成の動き確認</strong><br>
+      丸まったシダが、時間をかけてほどける。クリック／タップすると、その地点から新しい芽が開きます。
+    </div>
+  </section>
+
+<script>
+(() => {
+  const canvas = document.getElementById('cv');
+  const ctx = canvas.getContext('2d');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let W = 0, H = 0, DPR = 1;
+  const sprouts = [];
+  let lastAuto = 0;
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    W = rect.width;
+    H = rect.height;
+    DPR = window.innerWidth < 768
+      ? Math.min(window.devicePixelRatio || 1, 1.5)
+      : Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  function easeOutCubic(t) {
+    t = Math.max(0, Math.min(1, t));
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function easeInOut(t) {
+    t = Math.max(0, Math.min(1, t));
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function addSprout(x, y, scale = 1, rotation = -Math.PI / 2, delay = 0) {
+    sprouts.push({
+      x, y,
+      scale,
+      rotation,
+      birth: performance.now() + delay,
+      duration: 11500 + Math.random() * 4500,
+      maxTheta: Math.PI * (6.6 + Math.random() * 2.6),
+      a: 2.2 + Math.random() * 1.4,
+      b: 0.096 + Math.random() * 0.026,
+      hueShift: Math.random() * 18 - 9
+    });
+
+    if (sprouts.length > 22) sprouts.shift();
+  }
+
+  function seedInitial() {
+    const baseY = H * 0.58;
+    addSprout(W * 0.38, baseY, Math.min(W, H) / 430, -Math.PI / 2.1, 0);
+    addSprout(W * 0.26, H * 0.66, Math.min(W, H) / 610, -Math.PI / 2.6, 1400);
+    addSprout(W * 0.54, H * 0.70, Math.min(W, H) / 720, -Math.PI / 1.8, 2900);
+  }
+
+  function drawSprout(s, now) {
+    const age = now - s.birth;
+    if (age <= 0) return;
+
+    const raw = Math.min(1, age / s.duration);
+    const progress = easeOutCubic(raw);
+    const fadeIn = Math.min(1, age / 1300);
+    const fadeOut = raw > 0.86 ? 1 - easeInOut((raw - 0.86) / 0.14) * 0.72 : 1;
+    const alpha = fadeIn * fadeOut;
+
+    const thetaMax = progress * s.maxTheta;
+    const step = 0.055;
+    const points = [];
+
+    for (let theta = 0; theta <= thetaMax; theta += step) {
+      const wobble =
+        Math.sin(theta * 2.4 + now * 0.00035) * 4.5 +
+        Math.sin(theta * 5.1 + now * 0.00022) * 1.8;
+
+      const r = (s.a * Math.exp(s.b * theta) + wobble) * 17 * s.scale;
+      const angle = theta + s.rotation;
+
+      const x = s.x + r * Math.cos(angle);
+      const y = s.y + r * Math.sin(angle);
+
+      points.push({ theta, x, y, angle, r });
+    }
+
+    if (points.length < 2) return;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // pale water stain behind the fern
+    const end = points[points.length - 1];
+    const stainR = Math.max(80, end.r * 0.9);
+    const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, stainR);
+    g.addColorStop(0.0, 'rgba(126, 178, 190, 0.13)');
+    g.addColorStop(0.54, 'rgba(136, 179, 128, 0.07)');
+    g.addColorStop(1.0, 'rgba(255, 253, 248, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, stainR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // main curled stem
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.strokeStyle = `hsla(${118 + s.hueShift}, 32%, 38%, 0.62)`;
+    ctx.lineWidth = Math.max(1.4, 3.1 * s.scale);
+    ctx.stroke();
+
+    // inner highlight
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.strokeStyle = 'rgba(236, 245, 220, 0.30)';
+    ctx.lineWidth = Math.max(0.8, 1.2 * s.scale);
+    ctx.stroke();
+
+    // small leaflets along the curve
+    for (let i = 8; i < points.length - 4; i += 7) {
+      const p = points[i];
+      const localOpen = Math.min(1, Math.max(0, (thetaMax - p.theta) / 1.75));
+      if (localOpen <= 0.02) continue;
+
+      const sidePulse = 0.82 + 0.18 * Math.sin(p.theta * 1.7);
+      const len = (8 + p.theta * 1.15) * s.scale * localOpen * sidePulse;
+      const normal = p.angle + Math.PI / 2;
+      const curl = Math.sin(p.theta * 1.23 + now * 0.0006) * 0.28;
+
+      for (const side of [-1, 1]) {
+        const a = normal * side + curl;
+        const tipX = p.x + Math.cos(a) * len;
+        const tipY = p.y + Math.sin(a) * len;
+
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.quadraticCurveTo(
+          p.x + Math.cos(a + side * 0.34) * len * 0.58,
+          p.y + Math.sin(a + side * 0.34) * len * 0.58,
+          tipX,
+          tipY
+        );
+        ctx.strokeStyle = `hsla(${112 + s.hueShift}, 34%, 44%, ${0.34 * localOpen})`;
+        ctx.lineWidth = Math.max(0.55, 1.05 * s.scale);
+        ctx.stroke();
+
+        // leaf tip as an ellipse
+        ctx.save();
+        ctx.translate(tipX, tipY);
+        ctx.rotate(a);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, len * 0.19, len * 0.055, 0, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${106 + s.hueShift}, 38%, 50%, ${0.20 * localOpen})`;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // tiny warm "fire" points, very subtle
+    if (raw > 0.48 && raw < 0.9) {
+      const fireP = Math.sin(Math.min(1, (raw - 0.48) / 0.42) * Math.PI);
+      ctx.globalAlpha = alpha * fireP;
+      for (let j = 0; j < 9; j++) {
+        const idx = Math.floor(points.length * (0.28 + j * 0.06));
+        const p = points[idx];
+        if (!p) continue;
+        const rr = 1.2 + Math.sin(now * 0.003 + j) * 0.9;
+        ctx.beginPath();
+        ctx.arc(p.x + Math.sin(j * 13.1) * 9, p.y + Math.cos(j * 9.4) * 9, rr, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(214, 126, 54, 0.26)';
+        ctx.fill();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function draw(now) {
+    ctx.clearRect(0, 0, W, H);
+
+    // settling snow-white veil toward the end, but keep traces
+    const veil = ctx.createLinearGradient(0, 0, 0, H);
+    veil.addColorStop(0, 'rgba(255, 253, 248, 0.24)');
+    veil.addColorStop(0.55, 'rgba(255, 253, 248, 0.04)');
+    veil.addColorStop(1, 'rgba(255, 253, 248, 0.16)');
+    ctx.fillStyle = veil;
+    ctx.fillRect(0, 0, W, H);
+
+    for (const s of sprouts) drawSprout(s, now);
+
+    // auto-generate a few sprouts, slowly
+    if (now - lastAuto > 6200 && sprouts.length < 12) {
+      lastAuto = now;
+      const x = W * (0.18 + Math.random() * 0.58);
+      const y = H * (0.50 + Math.random() * 0.28);
+      const sc = Math.min(W, H) / (560 + Math.random() * 220);
+      const rot = -Math.PI / (1.65 + Math.random() * 0.8);
+      addSprout(x, y, sc, rot, 0);
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  function handlePointer(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    const sc = Math.min(W, H) / (530 + Math.random() * 260);
+    const rot = -Math.PI / (1.55 + Math.random() * 0.85);
+    addSprout(x, y, sc, rot, 0);
+  }
+
+  window.addEventListener('resize', () => {
+    resize();
+  });
+
+  canvas.addEventListener('pointerdown', handlePointer);
+  canvas.addEventListener('touchstart', handlePointer, { passive: true });
+
+  resize();
+  seedInitial();
+
+  if (!prefersReduced) {
+    requestAnimationFrame(draw);
+  } else {
+    const now = performance.now() + 12000;
+    sprouts.forEach(s => s.birth = performance.now() - 9000);
+    drawSprout(sprouts[0], now);
+  }
+})();
+</script>
+</body>
+</html>
