@@ -104,7 +104,7 @@ const dewoni = [
   <section class="dewoni-section section" aria-label="事業構造">
     <div class="container">
       <div class="section-header dewoni-section__header">
-        <img src="/images/logo-mark.svg" alt="" class="dewoni-section__logo" aria-hidden="true" />
+        <img src="/250ppi/Artboard%204.png" alt="" class="dewoni-section__logo" aria-hidden="true" />
         <div>
           <span class="section-label">Business Structure</span>
           <h2 class="section-title">能登でをに、暮らす。</h2>
@@ -170,43 +170,41 @@ const dewoni = [
         </div>
 
         <div class="news-layout__right">
-          <div class="insta-panel">
-            <div class="insta-panel__header">
-              <svg class="insta-panel__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <div class="insta-embed-wrap">
+            <div class="insta-embed-header">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
                 <circle cx="12" cy="12" r="4"/>
                 <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
               </svg>
-              <div class="insta-panel__meta">
-                <span class="insta-panel__handle">@kanemaru.inc</span>
-                <span class="insta-panel__sub">最新投稿</span>
-              </div>
+              <span class="insta-embed-label">@kanemaru.inc の最新投稿</span>
+              <a href="https://www.instagram.com/kanemaru.inc/" target="_blank" rel="noopener noreferrer" class="insta-embed-follow">フォロー</a>
             </div>
-            <a
-              href="https://www.instagram.com/kanemaru.inc/"
-              class="insta-panel__grid"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagramで最新投稿を見る"
+            <!--
+              【投稿の更新方法】
+              1. Instagramで表示したい投稿を開く
+              2. 右上「…」→「埋め込み」をタップ
+              3. 表示されたURLをコピーして下の data-instgrm-permalink に貼り付ける
+            -->
+            <blockquote
+              class="instagram-media"
+              data-instgrm-captioned
+              data-instgrm-permalink="https://www.instagram.com/kanemaru.inc/"
+              data-instgrm-version="14"
+              style="background:#FAF8F4; border:0; border-radius:0; box-shadow:none; margin:0 !important; min-width:100%; width:100%;"
             >
-              <div class="insta-panel__post insta-panel__post--1"><span class="insta-panel__overlay">最新投稿を<br/>Instagramで見る</span></div>
-              <div class="insta-panel__post insta-panel__post--2"></div>
-              <div class="insta-panel__post insta-panel__post--3"></div>
-              <div class="insta-panel__post insta-panel__post--4"></div>
-            </a>
-            <a
-              href="https://www.instagram.com/kanemaru.inc/"
-              class="insta-panel__cta"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                <circle cx="12" cy="12" r="4"/>
-                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
-              </svg>
-              Instagramをフォローする
-            </a>
+              <div class="insta-embed-loading">
+                <a href="https://www.instagram.com/kanemaru.inc/" target="_blank" rel="noopener noreferrer">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+                  </svg>
+                  <span>@kanemaru.inc</span>
+                </a>
+              </div>
+            </blockquote>
+            <script is:inline async src="https://www.instagram.com/embed.js"></script>
           </div>
         </div>
       </div>
@@ -440,10 +438,10 @@ const dewoni = [
   }
 
   .dewoni-section__logo {
-    width: 80px;
-    height: 80px;
+    width: 220px;
+    height: auto;
     flex-shrink: 0;
-    opacity: 0.85;
+    opacity: 0.9;
   }
 
   .dewoni-section__lead {
@@ -552,107 +550,72 @@ const dewoni = [
 
   .news-layout__right {}
 
-  /* ─── Instagram panel ─── */
+  /* ─── Instagram embed ─── */
 
-  .insta-panel {
+  .insta-embed-wrap {
     border: 1px solid var(--line);
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
+    background: var(--paper);
   }
 
-  .insta-panel__header {
+  .insta-embed-header {
     display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    color: var(--gray);
+  }
+
+  .insta-embed-label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    flex: 1;
+    color: var(--gray);
+  }
+
+  .insta-embed-follow {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--shu);
+    border: 1px solid rgba(192, 57, 27, 0.4);
+    padding: 3px 10px;
+    transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+    white-space: nowrap;
+  }
+
+  .insta-embed-follow:hover {
+    background: var(--shu);
+    color: var(--paper);
+    border-color: var(--shu);
+  }
+
+  .insta-embed-loading {
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .insta-embed-loading a {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 12px;
-    padding: 16px 18px;
-    border-bottom: 1px solid var(--line);
-    background: var(--paper);
-  }
-
-  .insta-panel__icon {
     color: var(--gray);
-    flex-shrink: 0;
-  }
-
-  .insta-panel__meta {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .insta-panel__handle {
     font-size: 13px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
+    transition: color var(--dur) var(--ease);
+  }
+
+  .insta-embed-loading a:hover {
     color: var(--ink);
   }
 
-  .insta-panel__sub {
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    color: var(--gray);
-    text-transform: uppercase;
-  }
-
-  .insta-panel__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    aspect-ratio: 1;
-    background: var(--line);
-    gap: 2px;
-    position: relative;
-  }
-
-  .insta-panel__post {
-    background: color-mix(in srgb, var(--gray) 12%, var(--paper));
-    position: relative;
-    overflow: hidden;
-  }
-
-  .insta-panel__post--1 { background: color-mix(in srgb, var(--de) 18%, var(--ink)); }
-  .insta-panel__post--2 { background: color-mix(in srgb, var(--wo) 18%, var(--ink)); }
-  .insta-panel__post--3 { background: color-mix(in srgb, var(--ni) 18%, var(--ink)); }
-  .insta-panel__post--4 { background: color-mix(in srgb, var(--shu) 18%, var(--ink)); }
-
-  .insta-panel__overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    line-height: 1.9;
-    color: rgba(250, 248, 244, 0.75);
-    text-align: center;
-    padding: 8px;
-    background: rgba(43, 38, 34, 0.35);
-    opacity: 0;
-    transition: opacity var(--dur) var(--ease);
-  }
-
-  .insta-panel__grid:hover .insta-panel__overlay {
-    opacity: 1;
-  }
-
-  .insta-panel__cta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 18px;
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    color: var(--gray);
-    border-top: 1px solid var(--line);
-    transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
-    background: var(--paper);
-  }
-
-  .insta-panel__cta:hover {
-    color: var(--ink);
-    background: color-mix(in srgb, var(--line) 30%, var(--paper));
+  /* Instagram embed.js が注入するiframeの横幅を制御 */
+  .insta-embed-wrap .instagram-media {
+    margin: 0 !important;
+    min-width: 100% !important;
+    width: 100% !important;
   }
 
   .news-list {
